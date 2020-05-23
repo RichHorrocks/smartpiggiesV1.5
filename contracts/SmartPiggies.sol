@@ -23,43 +23,17 @@ pragma experimental ABIEncoderV2;
 // thank you openzeppelin for SafeMath
 import "./SafeMath.sol";
 
-contract Owned {
-  address payable public owner;
-  constructor() public {
-    owner = msg.sender;
-  }
 
-  event ChangedOwner(address indexed from, address indexed newOwner);
-
-  modifier onlyOwner() {
-    require(msg.sender != address(0));
-    require(msg.sender == owner);
-    _;
-  }
-
-  function changeOwner(address payable _newOwner)
-    public
-    onlyOwner
-    returns (bool)
-  {
-    require(msg.sender != address(0));
-    owner = _newOwner;
-    emit ChangedOwner(msg.sender, _newOwner);
-    return true;
-  }
-}
-
-
-contract Administered is Owned {
+contract Administered {
   mapping(address => bool) private administrators;
   constructor(address _admin) public {
     administrators[_admin] = true;
   }
 
   modifier onlyAdmin() {
-    // admin is an administrator or owner
+    // admin is an administrator of the contact
     require(msg.sender != address(0));
-    require(administrators[msg.sender] || msg.sender == owner);
+    require(administrators[msg.sender]);
     _;
   }
 
@@ -296,7 +270,7 @@ contract SmartPiggies is UsingAHelper {
     uint256[10] details;
     address activeBidder;
     uint8 rfpNonce;
-    bool[5] flags;
+    bool[4] flags;
   }
 
   struct Piggy {
@@ -750,12 +724,12 @@ contract SmartPiggies is UsingAHelper {
   {
     require(msg.sender == piggies[_tokenId].addresses[1], "sender must be holder");
     require(auctions[_tokenId].flags[0], "auction must be active");
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied");  // this should be added to other functions as well
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied");  // this should be added to other functions as well
 
     // set to reserve for RFP
     uint256 premiumToReturn = auctions[_tokenId].details[3];
     address bidder = auctions[_tokenId].activeBidder;
-    bool bidLocked = auctions[_tokenId].flags[2];
+    //bool bidLocked = auctions[_tokenId].flags[2];
 
     bool success; // return bool from a token transfer
     bytes memory result; // return data from a token transfer
@@ -764,7 +738,7 @@ contract SmartPiggies is UsingAHelper {
     _clearAuctionDetails(_tokenId);
     // if bidding is locked and not an RFP
 
-    if (bidLocked) {
+    if (bidder != address(0)) {
       if (piggies[_tokenId].flags[0]) {
         bidBalances[bidder][_tokenId] = 0;
         // return adjusted premium to bidder
@@ -842,13 +816,14 @@ contract SmartPiggies is UsingAHelper {
     // require token on auction
     require(auctions[_tokenId].flags[0], "auction must be running");
     require(piggies[_tokenId].addresses[1] != msg.sender, "cannot bid on your auction");
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied");
-    require(!auctions[_tokenId].flags[2], "auction bidding locked");
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied");
+    //require(!auctions[_tokenId].flags[2], "auction bidding locked");
+    require(auctions[_tokenId].activeBidder == address(0), "auction bidding locked");
 
     // set bidder
     auctions[_tokenId].activeBidder = msg.sender;
     // lock bidding
-    auctions[_tokenId].flags[2] = true;
+    //auctions[_tokenId].flags[2] = true;
     // set cooldown
     auctions[_tokenId].details[9] = block.number.add(cooldown);
 
@@ -894,13 +869,14 @@ contract SmartPiggies is UsingAHelper {
     // require token on auction
     require(auctions[_tokenId].flags[0], "auction must be running");
     require(piggies[_tokenId].addresses[1] != msg.sender, "cannot bid on your auction");
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied");
-    require(!auctions[_tokenId].flags[2], "auction bidding locked");
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied");
+    //require(!auctions[_tokenId].flags[2], "auction bidding locked");
+    require(auctions[_tokenId].activeBidder == address(0), "auction bidding locked");
 
     // set bidder
     auctions[_tokenId].activeBidder = msg.sender;
     // lock bidding
-    auctions[_tokenId].flags[2] = true;
+    //auctions[_tokenId].flags[2] = true;
     // set cooldown
     auctions[_tokenId].details[9] = block.number.add(cooldown);
     // record current RFP nonce
@@ -955,7 +931,7 @@ contract SmartPiggies is UsingAHelper {
     // sender must be bidder on auction, implicit check that bid is locked
     require(msg.sender == auctions[_tokenId].activeBidder, "sender not bidder");
     // oracle didn't return
-    require(!auctions[_tokenId].flags[3], "bid cleared");
+    require(!auctions[_tokenId].flags[2], "bid cleared");
     // past cooldown
     require(auctions[_tokenId].details[9] < block.number, "cooldown still active");
 
@@ -986,7 +962,7 @@ contract SmartPiggies is UsingAHelper {
     nonReentrant
     returns (bool)
   {
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied"); // mutex MUST be first
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied"); // mutex MUST be first
     require(piggies[_tokenId].addresses[1] != msg.sender, "cannot satisfy your auction; use endAuction");
     require(auctions[_tokenId].flags[0], "auction must be active to satisfy");
     //use satisfyRFPAuction for RFP auctions
@@ -999,7 +975,7 @@ contract SmartPiggies is UsingAHelper {
     }
 
     // lock mutex
-    auctions[_tokenId].flags[4] = true;
+    auctions[_tokenId].flags[3] = true;
 
     uint256 auctionPremium = 0;
     uint256 adjPremium = 0;
@@ -1009,7 +985,7 @@ contract SmartPiggies is UsingAHelper {
     bytes32 txCheck; // bytes32 check from a token transfer
 
     if (auctions[_tokenId].flags[1]) {
-      require(auctions[_tokenId].flags[3], "auction must receive price check");
+      require(auctions[_tokenId].flags[2], "auction must receive price check");
 
       // check price limit condition
       _checkBidPrice(
@@ -1077,7 +1053,7 @@ contract SmartPiggies is UsingAHelper {
       );
 
     // mutex released
-    auctions[_tokenId].flags[4] = false;
+    auctions[_tokenId].flags[3] = false;
     return true;
   }
 
@@ -1087,13 +1063,13 @@ contract SmartPiggies is UsingAHelper {
     nonReentrant
     returns (bool)
   {
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied"); // mutex MUST be first
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied"); // mutex MUST be first
     require(piggies[_tokenId].addresses[1] != msg.sender, "cannot satisfy your auction; use endAuction");
     require(auctions[_tokenId].flags[0], "auction must be active to satisfy");
     //use satisfyPiggyAuction for piggy auctions
     require(piggies[_tokenId].flags[0], "cannot satisfy auction; check piggy type");
     require(auctions[_tokenId].flags[1], "bid auction not set");
-    require(auctions[_tokenId].flags[3], "auction must receive price check");
+    require(auctions[_tokenId].flags[2], "auction must receive price check");
     // make sure current rfpNonce matches rfpNonce for bid
     require(piggies[_tokenId].counters[1] == auctions[_tokenId].rfpNonce, "RFP Nonce failed match");
 
@@ -1104,7 +1080,7 @@ contract SmartPiggies is UsingAHelper {
     }
 
     // lock mutex
-    auctions[_tokenId].flags[4] = true;
+    auctions[_tokenId].flags[3] = true;
 
     uint256 adjPremium;
     uint256 change;
@@ -1172,7 +1148,7 @@ contract SmartPiggies is UsingAHelper {
     );
 
     // mutex released
-    auctions[_tokenId].flags[4] = false;
+    auctions[_tokenId].flags[3] = false;
     return true;
   }
 
@@ -1182,7 +1158,7 @@ contract SmartPiggies is UsingAHelper {
     nonReentrant
     returns (bool)
   {
-    require(!auctions[_tokenId].flags[4], "auction is being satisfied");
+    require(!auctions[_tokenId].flags[3], "auction is being satisfied");
     require(piggies[_tokenId].addresses[1] != msg.sender, "cannot satisfy your auction; use endAuction");
     require(auctions[_tokenId].flags[0], "auction must be active to satisfy");
 
@@ -1196,7 +1172,7 @@ contract SmartPiggies is UsingAHelper {
     }
 
     // lock mutex
-    auctions[_tokenId].flags[4] = true;
+    auctions[_tokenId].flags[3] = true;
 
     uint256 adjPremium;
     uint256 change;
@@ -1276,7 +1252,7 @@ contract SmartPiggies is UsingAHelper {
     );
 
     // mutex released
-    auctions[_tokenId].flags[4] = false;
+    auctions[_tokenId].flags[3] = false;
     return true;
   }
 
@@ -1349,7 +1325,7 @@ contract SmartPiggies is UsingAHelper {
     require(_tokenId != 0, "tokenId cannot be zero");
     require(auctions[_tokenId].flags[0], "auction must be active");
     require(!piggies[_tokenId].flags[3], "piggy cleared");
-    require(!auctions[_tokenId].flags[3], "bid cleared");
+    require(!auctions[_tokenId].flags[2], "bid cleared");
 
     address dataResolver = piggies[_tokenId].addresses[3];
     uint8 requestType = uint8 (RequestType.Bid);
@@ -1394,9 +1370,9 @@ contract SmartPiggies is UsingAHelper {
       }
     }
     if (_requestType == uint8 (RequestType.Bid)) {
-      require(!auctions[_tokenId].flags[3], "bid cleared");
+      require(!auctions[_tokenId].flags[2], "bid cleared");
       auctions[_tokenId].details[7] = _price;
-      auctions[_tokenId].flags[3] = true;
+      auctions[_tokenId].flags[2] = true;
     }
 
     emit OracleReturned(
@@ -1666,8 +1642,8 @@ contract SmartPiggies is UsingAHelper {
     auctions[_tokenId].activeBidder = address(0);
     auctions[_tokenId].rfpNonce = 0;
     auctions[_tokenId].flags[1] = false;
+    //auctions[_tokenId].flags[2] = false;
     auctions[_tokenId].flags[2] = false;
-    auctions[_tokenId].flags[3] = false;
   }
 
   function _clearAuctionDetails(uint256 _tokenId)
