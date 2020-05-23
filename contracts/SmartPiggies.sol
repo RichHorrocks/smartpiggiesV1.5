@@ -637,20 +637,11 @@ contract SmartPiggies is UsingAHelper {
       address collateralERC = piggies[_tokenId].addresses[2];
       // keep collateral
       uint256 collateral = piggies[_tokenId].uintDetails[0];
+
+      ERC20balances[msg.sender][collateralERC] = ERC20balances[msg.sender][collateralERC].add(collateral);
+
       // burn the token (zero out storage fields)
       _resetPiggy(_tokenId);
-
-      // *** warning untrusted function call ***
-      // return the collateral to sender
-      (bool success, bytes memory result) = address(collateralERC).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          msg.sender,
-          collateral
-        )
-      );
-      bytes32 txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
     }
     // burn the token (zero out storage fields)
     _resetPiggy(_tokenId);
@@ -731,74 +722,43 @@ contract SmartPiggies is UsingAHelper {
     address bidder = auctions[_tokenId].activeBidder;
     //bool bidLocked = auctions[_tokenId].flags[2];
 
-    bool success; // return bool from a token transfer
-    bytes memory result; // return data from a token transfer
-    bytes32 txCheck; // bytes32 check from a token transfer
+address collateralERC = piggies[_tokenId].addresses[2];
+
 
     _clearAuctionDetails(_tokenId);
     // if bidding is locked and not an RFP
 
     if (bidder != address(0)) {
       if (piggies[_tokenId].flags[0]) {
-        bidBalances[bidder][_tokenId] = 0;
-        // return adjusted premium to bidder
-        // *** warning untrusted function call ***
-        (success, result) = address(piggies[_tokenId].addresses[2]).call(
-          abi.encodeWithSignature(
-            "transfer(address,uint256)",
-            bidder,
-            piggies[_tokenId].uintDetails[5] // return requested collateral
-          )
-        );
-        txCheck = abi.decode(result, (bytes32));
-        require(success && txCheck == TX_SUCCESS, "token transfer failed");
 
-        if (bidBalances[msg.sender][_tokenId] > 0) {
-          bidBalances[msg.sender][_tokenId] = 0;
-          // if change from serverse price, return change to holder
-          // *** warning untrusted function call ***
-          (success, result) = address(piggies[_tokenId].addresses[2]).call(
-            abi.encodeWithSignature(
-              "transfer(address,uint256)",
-              bidder,
-              premiumToReturn
-            )
-          );
-          txCheck = abi.decode(result, (bytes32));
-          require(success && txCheck == TX_SUCCESS, "token transfer failed");
-        }
+        // reset bidding balances
+        bidBalances[bidder][_tokenId] = 0;
+        bidBalances[msg.sender][_tokenId] = 0;
+
+        // return requested collateral to filler
+        ERC20balances[bidder][collateralERC] =
+          ERC20balances[bidder][collateralERC].add(piggies[_tokenId].uintDetails[5]);
+
+        // if RFP get back your reserve
+        ERC20balances[msg.sender][collateralERC] =
+          ERC20balances[msg.sender][collateralERC].add(premiumToReturn);
+
       }
       // not RFP, return auction premium to bidder
       else {
         // reset premiumToReturn to bid balance
-        premiumToReturn = bidBalances[bidder][_tokenId];
+        premiumToReturn = bidBalances[bidder][_tokenId]; // <- make this: auctions[_tokenId].details[8]
         bidBalances[bidder][_tokenId] = 0;
         //return auction premium to bidder
-        // *** warning untrusted function call ***
-        (success, result) = address(piggies[_tokenId].addresses[2]).call(
-          abi.encodeWithSignature(
-            "transfer(address,uint256)",
-            bidder,
-            premiumToReturn
-          )
-        );
-        txCheck = abi.decode(result, (bytes32));
-        require(success && txCheck == TX_SUCCESS, "token transfer failed");
+        ERC20balances[bidder][collateralERC] =
+          ERC20balances[bidder][collateralERC].add(premiumToReturn);
       }
     }
     // if not on bid and RFP
     else if (piggies[_tokenId].flags[0]) {
-      // *** warning untrusted function call ***
       // refund the _reservePrice premium
-      (success, result) = address(piggies[_tokenId].addresses[2]).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          msg.sender,
-          premiumToReturn
-        )
-      );
-      txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+      ERC20balances[msg.sender][collateralERC] =
+        ERC20balances[msg.sender][collateralERC].add(premiumToReturn);
     }
     emit EndAuction(msg.sender, _tokenId, piggies[_tokenId].flags[0]);
     return true;
@@ -940,18 +900,13 @@ contract SmartPiggies is UsingAHelper {
     uint256 bidAmount = bidBalances[msg.sender][_tokenId];
     bidBalances[msg.sender][_tokenId] = 0;
 
+    address collateralERC = piggies[_tokenId].addresses[2];
+
+    ERC20balances[msg.sender][collateralERC] =
+    ERC20balances[msg.sender][collateralERC].add(bidAmount);
+
     // clean up token bid
     _clearBid(_tokenId);
-
-    (bool success, bytes memory result) = address(piggies[_tokenId].addresses[2]).call(
-      abi.encodeWithSignature(
-        "transfer(address,uint256)",
-        msg.sender,
-        bidAmount
-      )
-    );
-    bytes32 txCheck = abi.decode(result, (bytes32));
-    require(success && txCheck == TX_SUCCESS, "token transfer failed");
 
     return true;
   }
@@ -980,9 +935,6 @@ contract SmartPiggies is UsingAHelper {
     uint256 auctionPremium = 0;
     uint256 adjPremium = 0;
     address previousHolder = piggies[_tokenId].addresses[1];
-    bool success; // return bool from a token transfer
-    bytes memory result; // return data from a token transfer
-    bytes32 txCheck; // bytes32 check from a token transfer
 
     if (auctions[_tokenId].flags[1]) {
       require(auctions[_tokenId].flags[2], "auction must receive price check");
@@ -1005,17 +957,12 @@ contract SmartPiggies is UsingAHelper {
       // optimistic clean up assuming no revert
       _clearAuctionDetails(_tokenId);
 
-      // *** warning untrusted function call ***
+      address collateralERC = piggies[_tokenId].addresses[2];
+
       // previous holder/writer receives (adjusted) auction premium
-      (success, result) = address(piggies[_tokenId].addresses[2]).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          previousHolder,
-          adjPremium
-        )
-      );
-      txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+      ERC20balances[previousHolder][collateralERC] =
+      ERC20balances[previousHolder][collateralERC].add(adjPremium);
+
     }
     // auction didn't go through a bidding process
     else {
@@ -1034,13 +981,13 @@ contract SmartPiggies is UsingAHelper {
 
       // *** warning untrusted function call ***
       // msg.sender pays (adjusted) premium
-      (success, result) = attemptPaymentTransfer(
+      (bool success, bytes memory result) = attemptPaymentTransfer(
         piggies[_tokenId].addresses[2],
         msg.sender,
         previousHolder,
         adjPremium
       );
-      txCheck = abi.decode(result, (bytes32));
+      bytes32 txCheck = abi.decode(result, (bytes32));
       require(success && txCheck == TX_SUCCESS, "token transfer failed");
     }
 
@@ -1079,18 +1026,21 @@ contract SmartPiggies is UsingAHelper {
       return false;
     }
 
+    // check price limit condition
+    _checkBidPrice(
+      piggies[_tokenId].flags[2],
+      auctions[_tokenId].details[6],
+      auctions[_tokenId].details[7]
+    );
+
     // lock mutex
     auctions[_tokenId].flags[3] = true;
 
     uint256 adjPremium;
-    uint256 change;
+    //uint256 change;
     address holder = piggies[_tokenId].addresses[1];
     uint256 reserve = auctions[_tokenId].details[3];
     address bidder = auctions[_tokenId].activeBidder;
-
-    bool success; // return bool from a token transfer
-    bytes memory result; // return data from a token transfer
-    bytes32 txCheck; // bytes32 check from a token transfer
 
     // optimistic clean up assuming no revert
     _clearAuctionDetails(_tokenId);
@@ -1110,41 +1060,26 @@ contract SmartPiggies is UsingAHelper {
     // requested collateral moves to collateral, adjusted premium -> bidder
     bidBalances[bidder][_tokenId] = 0;
     // holder's premium -> bidder
-    bidBalances[holder][_tokenId] = bidBalances[holder][_tokenId].sub(adjPremium);
+    bidBalances[holder][_tokenId] = 0; // was -> bidBalances[holder][_tokenId].sub(adjPremium)
 
       // current holder pays premium (via amount already delegated to this contract in startAuction)
-      (success, result) = address(piggies[_tokenId].addresses[2]).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          bidder,
-          adjPremium
-        )
-      );
-      txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+address collateralERC = piggies[_tokenId].addresses[2];
+      ERC20balances[bidder][collateralERC] =
+        ERC20balances[bidder][collateralERC].add(adjPremium);
 
       // return any change to current holder
       if(adjPremium < reserve) {
-        // update holder's bidding balance
-
-        // *** warning untrusted function call ***
-        (success, result) = address(piggies[_tokenId].addresses[2]).call(
-          abi.encodeWithSignature(
-            "transfer(address,uint256)",
-            holder,
-            reserve.sub(adjPremium)
-          )
-        );
-        txCheck = abi.decode(result, (bytes32));
-        require(success && txCheck == TX_SUCCESS, "token transfer failed");
+        // return any change during the bidding process
+        ERC20balances[holder][collateralERC] =
+          ERC20balances[holder][collateralERC].add(reserve.sub(adjPremium));
       }
 
     emit SatisfyAuction(
       msg.sender,
       _tokenId,
       adjPremium,
-      change,
-      adjPremium.add(change)
+      reserve.sub(adjPremium), // change
+      adjPremium // ???
     );
 
     // mutex released
@@ -1177,10 +1112,6 @@ contract SmartPiggies is UsingAHelper {
     uint256 adjPremium;
     uint256 change;
 
-    bool success; // return bool from a token transfer
-    bytes memory result; // return data from a token transfer
-    bytes32 txCheck; // bytes32 check from a token transfer
-
     // collateral transfer SHOULD succeed, reqCollateral gets set to collateral
     piggies[_tokenId].uintDetails[0] = piggies[_tokenId].uintDetails[5];
     // isRequest becomes false
@@ -1208,39 +1139,28 @@ contract SmartPiggies is UsingAHelper {
 
       // *** warning untrusted function call ***
       // msg.sender needs to delegate reqCollateral
-      (success, result) = attemptPaymentTransfer(
+      (bool success, bytes memory result) = attemptPaymentTransfer(
         piggies[_tokenId].addresses[2],
         msg.sender,
         address(this),
         piggies[_tokenId].uintDetails[5]
       );
-      txCheck = abi.decode(result, (bytes32));
+      bytes32 txCheck = abi.decode(result, (bytes32));
       require(success && txCheck == TX_SUCCESS, "token transfer failed");
 
-      // *** warning untrusted function call ***
+      address collateralERC = piggies[_tokenId].addresses[2];
+
       // current holder pays premium (via amount already delegated to this contract in startAuction)
-      (success, result) = address(piggies[_tokenId].addresses[2]).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          msg.sender,
-          adjPremium
-        )
-      );
-      txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+            ERC20balances[msg.sender][collateralERC] =
+              ERC20balances[msg.sender][collateralERC].add(adjPremium);
+
+
 
       // current holder receives any change due
       if (change > 0) {
-        // *** warning untrusted function call ***
-        (success, result) = address(piggies[_tokenId].addresses[2]).call(
-          abi.encodeWithSignature(
-            "transfer(address,uint256)",
-            piggies[_tokenId].addresses[1],
-            change
-          )
-        );
-        txCheck = abi.decode(result, (bytes32));
-        require(success && txCheck == TX_SUCCESS, "token transfer failed");
+        address holder = piggies[_tokenId].addresses[1];
+        ERC20balances[holder][collateralERC] =
+          ERC20balances[holder][collateralERC].add(change);
       }
 
     emit SatisfyAuction(
