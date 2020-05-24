@@ -895,6 +895,8 @@ address collateralERC = piggies[_tokenId].addresses[2];
     // past cooldown
     require(auctions[_tokenId].details[9] < block.number, "cooldown still active");
 
+//if RFP conditional only owen req collateral
+
     // *** warning untrusted function call ***
     // refund the _reservePrice premium
     uint256 bidAmount = bidBalances[msg.sender][_tokenId];
@@ -950,7 +952,7 @@ address collateralERC = piggies[_tokenId].addresses[2];
       _internalTransfer(previousHolder, auctions[_tokenId].activeBidder, _tokenId);
 
       // included for event logging
-      adjPremium = adjPremium = auctions[_tokenId].details[8];
+      adjPremium = auctions[_tokenId].details[8];
       // update bidder's balance
       bidBalances[auctions[_tokenId].activeBidder][_tokenId] = 0;
 
