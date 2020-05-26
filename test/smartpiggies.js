@@ -5,7 +5,7 @@
 Promise = require("bluebird");
 const StableToken = artifacts.require("./StableToken.sol");
 const TestnetLINK = artifacts.require("./TestnetLINK.sol");
-const PiggyHelper = artifacts.require("./PiggyHelper.sol");
+const PiggyCompanion = artifacts.require("./PiggyCompanion.sol");
 const SmartPiggies = artifacts.require("./SmartPiggies.sol");
 const Resolver = artifacts.require("./ResolverSelfReturn.sol");
 
@@ -76,7 +76,7 @@ contract ('SmartPiggies', function(accounts) {
     })
     .then(instance => {
       resolverInstance = instance;
-      return PiggyHelper.new({from: owner});
+      return PiggyCompanion.new({from: owner});
     })
     .then(instance => {
       helperInstance = instance;

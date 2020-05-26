@@ -245,7 +245,7 @@ contract PiggyHelper is Serviced {
   {
     require(piggies[_tokenId].addresses[1] == msg.sender, "sender must be the holder");
     require(piggies[_tokenId].flags[0], "you can only update an RFP");
-    require(!auctions[_tokenId][3], "auction in process of being satisfied");
+    require(!auctions[_tokenId].flags[3], "auction in process of being satisfied");
     uint256 expiryBlock;
     if (_collateralERC != address(0)) {
       piggies[_tokenId].addresses[2] = _collateralERC;
@@ -281,7 +281,7 @@ contract PiggyHelper is Serviced {
     emit UpdateRFP(
       msg.sender,
       _tokenId,
-      piggies[_tokenId].uintDetails.rfpNonce,
+      piggies[_tokenId].counters[1],
       _collateralERC,
       _dataResolver,
       _arbiter,
@@ -298,7 +298,7 @@ contract PiggyHelper is Serviced {
 
   // Auctions
 
-  
+
 
   // Settlement
 
@@ -358,7 +358,7 @@ contract PiggyHelper is Serviced {
     returns (bool)
   {
     require(_newArbiter != address(0), "arbiter address cannot be zero");
-    require(!auctions[_tokenId][0], "token cannot be on auction");
+    require(!auctions[_tokenId].flags[0], "token cannot be on auction");
     address _holder = piggies[_tokenId].addresses[1];
     address _writer = piggies[_tokenId].addresses[0];
     require(msg.sender == _holder || msg.sender == _writer, "only writer or holder can propose a new arbiter");
@@ -409,7 +409,7 @@ contract PiggyHelper is Serviced {
     // set flag for proposed share for that party
     if (msg.sender == _holder) {
       piggies[_tokenId].uintDetails[8] = _proposedPrice;
-      piggies[_tokenId].flags.[7] = true;
+      piggies[_tokenId].flags[7] = true;
       emit PriceProposed(msg.sender, _tokenId, _proposedPrice);
     }
     if (msg.sender == _writer) {
@@ -450,7 +450,7 @@ contract PiggyHelper is Serviced {
         // arbitration has come to an agreement
         piggies[_tokenId].flags[10] = true;
         // update settlement price
-        piggies[_tokenId].uintDetails.[3] = _settlementPrice;
+        piggies[_tokenId].uintDetails[3] = _settlementPrice;
         piggies[_tokenId].flags[3] = true;
         // emit settlement event
         emit ArbiterSettled(msg.sender, _arbiter, _tokenId, _settlementPrice);
@@ -510,7 +510,7 @@ contract PiggyHelper is Serviced {
       require(!piggies[_splitTokenId].flags[0], "token cannot be an RFP");
       require(piggies[_splitTokenId].addresses[1] == msg.sender, "only the holder can split");
       require(block.number < piggies[_splitTokenId].uintDetails[4], "cannot split expired token");
-      require(!auctions[_splitTokenId][0], "cannot split token on auction");
+      require(!auctions[_splitTokenId].flags[0], "cannot split token on auction");
       require(!piggies[_splitTokenId].flags[3], "cannot split cleared token");
       tokenExpiry = piggies[_splitTokenId].uintDetails[4];
       p.addresses[0] = piggies[_splitTokenId].addresses[0];

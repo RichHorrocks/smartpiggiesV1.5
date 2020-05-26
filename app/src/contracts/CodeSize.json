@@ -23,15 +23,15 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"getSize\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/talgya/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol\":\"CodeSize\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":5},\"remappings\":[]},\"sources\":{\"/Users/talgya/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol\":{\"keccak256\":\"0x6778ecbc2d367824f338d3c84755763701f9da55f9db884f5da802c4bd96a8aa\",\"urls\":[\"bzz-raw://164a87a9f9f5e19a46fb80d2c27c11e7878b4c97594c1f001a1a6424d03a03f5\",\"dweb:/ipfs/QmR5oADjb464tvbptnL4xj4hNg61X8sNZL48TNxQQwKVhu\"]}},\"version\":1}",
-  "bytecode": "0x6080604052348015600f57600080fd5b50609b8061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063504f167114602d575b600080fd5b605060048036036020811015604157600080fd5b50356001600160a01b03166062565b60408051918252519081900360200190f35b3b9056fea265627a7a723158201254d57a44ef9d85a707bc872f48c8abbe48ad073b412045351ffdb69a41c53964736f6c63430005110032",
-  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063504f167114602d575b600080fd5b605060048036036020811015604157600080fd5b50356001600160a01b03166062565b60408051918252519081900360200190f35b3b9056fea265627a7a723158201254d57a44ef9d85a707bc872f48c8abbe48ad073b412045351ffdb69a41c53964736f6c63430005110032",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"getSize\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol\":\"CodeSize\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":5},\"remappings\":[]},\"sources\":{\"/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol\":{\"keccak256\":\"0x6778ecbc2d367824f338d3c84755763701f9da55f9db884f5da802c4bd96a8aa\",\"urls\":[\"bzz-raw://164a87a9f9f5e19a46fb80d2c27c11e7878b4c97594c1f001a1a6424d03a03f5\",\"dweb:/ipfs/QmR5oADjb464tvbptnL4xj4hNg61X8sNZL48TNxQQwKVhu\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50609b8061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063504f167114602d575b600080fd5b605060048036036020811015604157600080fd5b50356001600160a01b03166062565b60408051918252519081900360200190f35b3b9056fea265627a7a72315820b7eed056ea6ccbcb1833ba8c09fc04ae7cb49e080cce094a024f3601efa2686364736f6c63430005110032",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063504f167114602d575b600080fd5b605060048036036020811015604157600080fd5b50356001600160a01b03166062565b60408051918252519081900360200190f35b3b9056fea265627a7a72315820b7eed056ea6ccbcb1833ba8c09fc04ae7cb49e080cce094a024f3601efa2686364736f6c63430005110032",
   "sourceMap": "27:212:9:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;27:212:9;;;;;;;",
   "deployedSourceMap": "27:212:9:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;27:212:9;;;;;;;;;;;;;;;;;;;52:185;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;52:185:9;-1:-1:-1;;;;;52:185:9;;:::i;:::-;;;;;;;;;;;;;;;;;187:21;;52:185::o",
   "source": "pragma solidity >=0.5.15;\n\ncontract CodeSize {\n\n    function getSize(address _address)\n      public\n      view\n      returns (uint256)\n    {\n        uint size;\n        assembly { size := extcodesize(_address) }\n        return size;\n    }\n}\n",
-  "sourcePath": "/Users/talgya/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
+  "sourcePath": "/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
   "ast": {
-    "absolutePath": "/Users/talgya/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
+    "absolutePath": "/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
     "exportedSymbols": {
       "CodeSize": [
         6167
@@ -242,7 +242,7 @@
     "src": "0:240:9"
   },
   "legacyAST": {
-    "absolutePath": "/Users/talgya/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
+    "absolutePath": "/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/CodeSize.sol",
     "exportedSymbols": {
       "CodeSize": [
         6167
@@ -457,8 +457,8 @@
     "version": "0.5.17+commit.d19bba13.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.19",
-  "updatedAt": "2020-05-23T15:28:46.079Z",
+  "schemaVersion": "3.1.0",
+  "updatedAt": "2020-05-13T09:47:28.929Z",
   "devdoc": {
     "methods": {}
   },

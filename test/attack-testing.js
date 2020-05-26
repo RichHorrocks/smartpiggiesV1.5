@@ -8,7 +8,7 @@ const AttackTokenEndAuctionV2 = artifacts.require("./AttackTokenEndAuctionV2.sol
 const AttackTokenSatisfyAuction = artifacts.require("./AttackTokenSatisfyAuction.sol");
 const AttackTokenClaim = artifacts.require("./AttackTokenClaim.sol");
 const TestnetLINK = artifacts.require("./TestnetLINK.sol");
-const PiggyHelper = artifacts.require("./PiggyHelper.sol");
+const PiggyCompanion = artifacts.require("./PiggyCompanion.sol");
 //const SmartPiggies = artifacts.require("./SmartPiggies.sol");
 const SmartPiggies = artifacts.require("./SmartPiggiesReentry.sol");
 const Resolver = artifacts.require("./ResolverSelfReturn.sol");
@@ -127,7 +127,7 @@ contract ('SmartPiggies', function(accounts) {
     })
     .then(instance => {
       resolverAttackInstance = instance;
-      return PiggyHelper.new({from: owner});
+      return PiggyCompanion.new({from: owner});
     })
     .then(instance => {
       helperInstance = instance;
