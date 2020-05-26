@@ -23,50 +23,17 @@ pragma experimental ABIEncoderV2;
 // thank you openzeppelin for SafeMath
 import "./SafeMath.sol";
 
-contract Owned {
-  address payable public owner;
-  constructor() public {
-    owner = msg.sender;
-  }
 
-  event ChangedOwner(address indexed from, address indexed newOwner);
-
-  modifier onlyOwner() {
-    require(msg.sender != address(0));
-    require(msg.sender == owner);
-    _;
-  }
-
-  function getOwner() public view returns (address) {
-    return owner;
-  }
-
-  function changeOwner(address payable _newOwner)
-    public
-    onlyOwner
-    returns (bool)
-  {
-    require(msg.sender != address(0));
-    owner = _newOwner;
-    emit ChangedOwner(msg.sender, _newOwner);
-    return true;
-  }
-}
-
-
-contract Administered is Owned {
+contract Administered {
   mapping(address => bool) private administrators;
   constructor(address _admin) public {
     administrators[_admin] = true;
   }
 
-  event AddedAdmin(address indexed from, address indexed newAdmin);
-  event DeletedAdmin(address indexed from, address indexed oldAdmin);
-
   modifier onlyAdmin() {
     // admin is an administrator or owner
     require(msg.sender != address(0));
-    require(administrators[msg.sender] || msg.sender == owner);
+    require(administrators[msg.sender]);
     _;
   }
 
@@ -84,7 +51,6 @@ contract Administered is Owned {
     returns (bool)
   {
     administrators[_newAdmin] = true;
-    emit AddedAdmin(msg.sender, _newAdmin);
     return true;
   }
 
@@ -94,7 +60,6 @@ contract Administered is Owned {
     returns (bool)
   {
     administrators[_admin] = false;
-    emit DeletedAdmin(msg.sender, _admin);
     return true;
   }
 }
@@ -151,10 +116,6 @@ contract Serviced is Freezable {
   uint8   public feePercent;
   uint16  public feeResolution;
 
-  event FeeAddressSet(address indexed from, address indexed newAddress);
-  event FeeSet(address indexed from, uint8 indexed newFee);
-  event ResolutionSet(address indexed from, uint16 newResolution);
-
   constructor(address payable _feeAddress)
     public
   {
@@ -177,7 +138,6 @@ contract Serviced is Freezable {
     returns (bool)
   {
     feeAddress = _newAddress;
-    emit FeeAddressSet(msg.sender, _newAddress);
     return true;
   }
 
@@ -187,7 +147,6 @@ contract Serviced is Freezable {
     returns (bool)
   {
     feePercent = _newFee;
-    emit FeeSet(msg.sender, _newFee);
     return true;
   }
 
@@ -198,7 +157,6 @@ contract Serviced is Freezable {
   {
     require(_newResolution != 0);
     feeResolution = _newResolution;
-    emit ResolutionSet(msg.sender, _newResolution);
     return true;
   }
 
@@ -216,8 +174,6 @@ contract Serviced is Freezable {
 contract UsingCooldown is Serviced {
   uint256 public cooldown;
 
-  event CooldownSet(address indexed from, uint256 _newCooldown);
-
   constructor()
     public
   {
@@ -231,7 +187,6 @@ contract UsingCooldown is Serviced {
     returns (bool)
   {
     cooldown = _newCooldown;
-    emit CooldownSet(msg.sender, _newCooldown);
     return true;
   }
 }
@@ -567,10 +522,10 @@ contract SmartPiggies is UsingCompanion {
     require(_amount < piggies[_tokenId].uintDetails.collateral, "amount must be less than collateral");
     require(!piggies[_tokenId].flags.isRequest, "cannot be an RFP");
     require(piggies[_tokenId].uintDetails.collateral > 0, "collateral must be greater than zero");
-    require(piggies[_tokenId].addresses.holder == msg.sender, "only the holder can split");
+    require(piggies[_tokenId].addresses.holder == msg.sender, "only holder can split");
     require(block.number < piggies[_tokenId].uintDetails.expiry, "cannot split expired token");
-    require(!auctions[_tokenId].auctionActive, "cannot split token on auction");
-    require(!piggies[_tokenId].flags.hasBeenCleared, "cannot split cleared token");
+    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
 
     // assuming all checks have passed:
 
@@ -622,7 +577,7 @@ contract SmartPiggies is UsingCompanion {
   function transferFrom(address _from, address _to, uint256 _tokenId)
     public
   {
-    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be the holder");
+    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be holder");
     _internalTransfer(_from, _to, _tokenId);
   }
 
@@ -660,15 +615,15 @@ contract SmartPiggies is UsingCompanion {
     nonReentrant
     returns (bool)
   {
-    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be the holder");
-    require(!auctions[_tokenId].auctionActive, "token cannot be on auction");
+    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be holder");
+    require(!auctions[_tokenId].auctionActive, "auction active");
 
     emit ReclaimAndBurn(msg.sender, _tokenId, piggies[_tokenId].flags.isRequest);
     // remove id from index mapping
     _removeTokenFromOwnedPiggies(piggies[_tokenId].addresses.holder, _tokenId);
 
     if (!piggies[_tokenId].flags.isRequest) {
-      require(msg.sender == piggies[_tokenId].addresses.writer, "sender must own collateral to reclaim it");
+      require(msg.sender == piggies[_tokenId].addresses.writer, "sender must own collateral");
 
       // keep collateralERC address
       address collateralERC = piggies[_tokenId].addresses.collateralERC;
@@ -708,11 +663,11 @@ contract SmartPiggies is UsingCompanion {
     returns (bool)
   {
     uint256 _auctionExpiry = block.number.add(_auctionLength);
-    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be the holder");
-    require(piggies[_tokenId].uintDetails.expiry > block.number, "token must not be expired");
+    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be holder");
+    require(piggies[_tokenId].uintDetails.expiry > block.number, "piggy expired");
     require(piggies[_tokenId].uintDetails.expiry > _auctionExpiry, "auction cannot expire after token expiry");
-    require(!piggies[_tokenId].flags.hasBeenCleared, "token cannot be cleared");
-    require(!auctions[_tokenId].auctionActive, "auction cannot be running");
+    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
+    require(!auctions[_tokenId].auctionActive, "auction active");
 
     // if we made it past the various checks, set the auction metadata up in auctions mapping
     auctions[_tokenId].startBlock = block.number;
@@ -753,9 +708,9 @@ contract SmartPiggies is UsingCompanion {
     nonReentrant
     returns (bool)
   {
-    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be the holder");
-    require(auctions[_tokenId].auctionActive, "auction must be active");
-    require(!auctions[_tokenId].satisfyInProgress, "auction in process of being satisfied");  // this should be added to other functions as well
+    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be holder");
+    require(auctions[_tokenId].auctionActive, "auction not active");
+    require(!auctions[_tokenId].satisfyInProgress, "auction is being satisfied");  // this should be added to other functions as well
 
     if (piggies[_tokenId].flags.isRequest) {
       uint256 _premiumToReturn = auctions[_tokenId].reservePrice;
@@ -785,9 +740,9 @@ contract SmartPiggies is UsingCompanion {
     nonReentrant
     returns (bool)
   {
-    require(!auctions[_tokenId].satisfyInProgress, "auction in process of being satisfied");
-    require(piggies[_tokenId].addresses.holder != msg.sender, "cannot satisfy your auction; use endAuction");
-    require(auctions[_tokenId].auctionActive, "auction must be active to satisfy");
+    require(!auctions[_tokenId].satisfyInProgress, "auction is being satisfied");
+    require(piggies[_tokenId].addresses.holder != msg.sender, "cannot satisfy auction; use endAuction");
+    require(auctions[_tokenId].auctionActive, "auction not active");
     // if auction is "active" according to state but has expired, change state
     if (auctions[_tokenId].expiryBlock < block.number) {
       _clearAuctionDetails(_tokenId);
@@ -931,8 +886,8 @@ contract SmartPiggies is UsingCompanion {
     returns (bool)
   {
     require(msg.sender != address(0));
-    require(!auctions[_tokenId].auctionActive, "cannot clear while auction is active");
-    require(!piggies[_tokenId].flags.hasBeenCleared, "token has been cleared");
+    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
     require(_tokenId != 0, "tokenId cannot be zero");
 
     // check if Euro require past expiry
@@ -942,7 +897,7 @@ contract SmartPiggies is UsingCompanion {
     // check if American and less than expiry, only holder can call
     if (!piggies[_tokenId].flags.isEuro && (block.number < piggies[_tokenId].uintDetails.expiry))
     {
-      require(msg.sender == piggies[_tokenId].addresses.holder, "only the holder can settle American before expiry");
+      require(msg.sender == piggies[_tokenId].addresses.holder, "only holder can settle American before expiry");
     }
 
     address dataResolver = piggies[_tokenId].addresses.dataResolver;
@@ -979,7 +934,7 @@ contract SmartPiggies is UsingCompanion {
     require(msg.sender != address(0));
     // MUST restrict a call to only the resolver address
     require(msg.sender == piggies[_tokenId].addresses.dataResolver, "resolver callback address failed match");
-    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy already cleared");
+    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
     piggies[_tokenId].uintDetails.settlementPrice = _price;
     piggies[_tokenId].flags.hasBeenCleared = true;
 
@@ -1186,8 +1141,8 @@ contract SmartPiggies is UsingCompanion {
   function _internalTransfer(address _from, address _to, uint256 _tokenId)
     internal
   {
-    require(_from == piggies[_tokenId].addresses.holder, "from must be the holder");
-    require(_to != address(0), "receiving address cannot be zero");
+    require(_from == piggies[_tokenId].addresses.holder, "from must be holder");
+    require(_to != address(0), "recipient cannot be zero");
     _removeTokenFromOwnedPiggies(_from, _tokenId);
     _addTokenToOwnedPiggies(_to, _tokenId);
     piggies[_tokenId].addresses.holder = _to;

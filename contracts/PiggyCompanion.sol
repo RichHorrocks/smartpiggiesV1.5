@@ -7,46 +7,17 @@ pragma solidity 0.5.17;
 
 import "./SafeMath.sol";
 
-contract Owned {
-  address payable public owner;
-  constructor() public {
-    owner = msg.sender;
-  }
 
-  event ChangedOwner(address indexed from, address indexed newOwner);
-
-  modifier onlyOwner() {
-    require(msg.sender != address(0));
-    require(msg.sender == owner);
-    _;
-  }
-
-  function changeOwner(address payable _newOwner)
-    public
-    onlyOwner
-    returns (bool)
-  {
-    require(msg.sender != address(0));
-    owner = _newOwner;
-    emit ChangedOwner(msg.sender, _newOwner);
-    return true;
-  }
-}
-
-
-contract Administered is Owned {
+contract Administered {
   mapping(address => bool) private administrators;
   constructor(address _admin) public {
     administrators[_admin] = true;
   }
 
-  event AddedAdmin(address indexed from, address indexed newAdmin);
-  event DeletedAdmin(address indexed from, address indexed oldAdmin);
-
   modifier onlyAdmin() {
     // admin is an administrator or owner
     require(msg.sender != address(0));
-    require(administrators[msg.sender] || msg.sender == owner);
+    require(administrators[msg.sender]);
     _;
   }
 
@@ -64,7 +35,6 @@ contract Administered is Owned {
     returns (bool)
   {
     administrators[_newAdmin] = true;
-    emit AddedAdmin(msg.sender, _newAdmin);
     return true;
   }
 
@@ -74,7 +44,6 @@ contract Administered is Owned {
     returns (bool)
   {
     administrators[_admin] = false;
-    emit DeletedAdmin(msg.sender, _admin);
     return true;
   }
 }
@@ -123,10 +92,6 @@ contract Serviced is Freezable {
   uint8   public feePercent;
   uint16  public feeResolution;
 
-  event FeeAddressSet(address indexed from, address indexed newAddress);
-  event FeeSet(address indexed from, uint8 indexed newFee);
-  event ResolutionSet(address indexed from, uint16 newResolution);
-
   constructor(address payable _feeAddress)
     public
   {
@@ -141,7 +106,6 @@ contract Serviced is Freezable {
     returns (bool)
   {
     feeAddress = _newAddress;
-    emit FeeAddressSet(msg.sender, _newAddress);
     return true;
   }
 
@@ -151,7 +115,6 @@ contract Serviced is Freezable {
     returns (bool)
   {
     feePercent = _newFee;
-    emit FeeSet(msg.sender, _newFee);
     return true;
   }
 
@@ -162,7 +125,6 @@ contract Serviced is Freezable {
   {
     require(_newResolution != 0);
     feeResolution = _newResolution;
-    emit ResolutionSet(msg.sender, _newResolution);
     return true;
   }
 
