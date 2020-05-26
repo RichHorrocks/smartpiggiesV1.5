@@ -227,15 +227,12 @@ contract ('SmartPiggies', function(accounts) {
           () => Promise.resolve(piggyInstance.getDetails(tokenId.add(two), {from: owner})),
           () => Promise.resolve(tokenInstance.balanceOf.call(tokenInstance.address, {from: owner})),
           () => Promise.resolve(tokenInstance.balanceOf.call(piggyInstance.address, {from: owner})),
-          () => Promise.resolve(piggyInstance._guardCounter({from: owner})),
         ])
       })
       .then(result => {
         assert.strictEqual(result[0].toString(), tokenId.add(two).toString(), "tokenId did not return correct ID number");
         assert.strictEqual(result[1].toString(), one.add(two).toString(), "attack counter did not return correctly");
         assert.isTrue(result[2], "attack bool did not return true");
-        //make sure guard counter is triggering
-        assert.isAtLeast(result[8].toNumber(), 3, "guard counter did not return a high enough count");
 
         /*
         ** result.address = result[0]
@@ -1085,6 +1082,7 @@ contract ('SmartPiggies', function(accounts) {
         () => Promise.resolve(resolverAttackInstance.didXfer.call({from: owner})),
         () => Promise.resolve(resolverAttackInstance.xferReturn.call({from: owner})),
         () => Promise.resolve(piggyInstance.getDetails(tokenId, {from: user01})),
+        () => Promise.resolve(piggyInstance.getAuctionDetails(tokenId, {from: user01})),
       ])
       .then(result => {
         /**

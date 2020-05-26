@@ -136,7 +136,6 @@ contract ResolverSelfAttack {
     require(success);
 
     return true;
-
   }
 
   function attackCallback(bytes32 _requestId, uint256 _price)
