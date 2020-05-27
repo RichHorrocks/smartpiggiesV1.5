@@ -192,7 +192,7 @@ contract UsingCooldown is Serviced {
 }
 
 
-contract UsingCompanion is UsingCooldown {
+contract UsingACompanion is UsingCooldown {
   address public companionAddress;
 
   function setHelper(address _newAddress)
@@ -206,9 +206,46 @@ contract UsingCompanion is UsingCooldown {
 }
 
 
+contract UsingConstants is UsingACompanion {
+  /** Auction Detail
+   *  details[0] - Start Block
+   *  details[1] - Expiry Block
+   *  details[2] - Start Price
+   *  details[3] - Reserve Price
+   *  details[4] - Time Step
+   *  details[5] - Price Step
+   *  details[6] - Limit Bid
+   *  details[7] - Oracle Price
+   *  details[8] - Auction Premium
+   *  details[9] - Cooldown Period
+   *  address    - Active Bidding Account
+   *  uint8      - RFP Nonce
+   *  flags[0]   - Auction Active
+   *  flags[1]   - Bid Limit Set
+   *  flags[2]   - Bid Cleared
+   *  flags[3]   - Satisfy In Progress
+  */
+  uint8 constant STARTBLOCK     = 0;
+  uint8 constant EXPIRYBLOCK    = 1;
+  uint8 constant STARTPRICE     = 2;
+  uint8 constant RESERVEPRICE   = 3;
+  uint8 constant TIMESTEP       = 4;
+  uint8 constant PRICESTEP      = 5;
+  uint8 constant LIMITPRICE     = 6;
+  uint8 constant ORACLEPRICE    = 7;
+  uint8 constant AUCTIONPREMIUM = 8;
+  uint8 constant COOLDOWN       = 9;
+
+  uint8 constant AUCTIONACTIVE     = 0;
+  uint8 constant BIDLIMITSET       = 1;
+  uint8 constant BIDCLEARED        = 2;
+  uint8 constant SATISFYINPROGRESS = 3; // flags[3] mutex guard to disallow ending an auction if a transaction to satisfy is in progress
+}
+
+
 /** @title SmartPiggies: A Smart Option Standard
 */
-contract SmartPiggies is UsingCompanion {
+contract SmartPiggies is UsingConstants {
   using SafeMath for uint256;
 
   enum RequestType { Bid, Settlement }
@@ -264,14 +301,10 @@ contract SmartPiggies is UsingCompanion {
   }
 
   struct DetailAuction {
-    uint256 startBlock;
-    uint256 expiryBlock;
-    uint256 startPrice;
-    uint256 reservePrice;
-    uint256 timeStep;
-    uint256 priceStep;
-    bool auctionActive;
-    bool satisfyInProgress;  // mutex guard to disallow ending an auction if a transaction to satisfy is in progress
+    uint256[10] details;
+    address activeBidder;
+    uint8 rfpNonce;
+    bool[4] flags;
   }
 
   struct Piggy {
@@ -524,7 +557,7 @@ contract SmartPiggies is UsingCompanion {
     require(piggies[_tokenId].uintDetails.collateral > 0, "collateral must be greater than zero");
     require(piggies[_tokenId].addresses.holder == msg.sender, "only holder can split");
     require(block.number < piggies[_tokenId].uintDetails.expiry, "cannot split expired token");
-    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
 
     // assuming all checks have passed:
@@ -616,7 +649,7 @@ contract SmartPiggies is UsingCompanion {
     returns (bool)
   {
     require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be holder");
-    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
 
     emit ReclaimAndBurn(msg.sender, _tokenId, piggies[_tokenId].flags.isRequest);
     // remove id from index mapping
@@ -667,16 +700,16 @@ contract SmartPiggies is UsingCompanion {
     require(piggies[_tokenId].uintDetails.expiry > block.number, "piggy expired");
     require(piggies[_tokenId].uintDetails.expiry > _auctionExpiry, "auction cannot expire after token expiry");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
-    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
 
     // if we made it past the various checks, set the auction metadata up in auctions mapping
-    auctions[_tokenId].startBlock = block.number;
-    auctions[_tokenId].expiryBlock = _auctionExpiry;
-    auctions[_tokenId].startPrice = _startPrice;
-    auctions[_tokenId].reservePrice = _reservePrice;
-    auctions[_tokenId].timeStep = _timeStep;
-    auctions[_tokenId].priceStep = _priceStep;
-    auctions[_tokenId].auctionActive = true;
+    auctions[_tokenId].details[STARTBLOCK] = block.number;
+    auctions[_tokenId].details[EXPIRYBLOCK] = _auctionExpiry;
+    auctions[_tokenId].details[STARTPRICE] = _startPrice;
+    auctions[_tokenId].details[RESERVEPRICE] = _reservePrice;
+    auctions[_tokenId].details[TIMESTEP] = _timeStep;
+    auctions[_tokenId].details[PRICESTEP] = _priceStep;
+    auctions[_tokenId].flags[AUCTIONACTIVE] = true;
 
     if (piggies[_tokenId].flags.isRequest) {
       // *** warning untrusted function call ***
@@ -709,11 +742,11 @@ contract SmartPiggies is UsingCompanion {
     returns (bool)
   {
     require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be holder");
-    require(auctions[_tokenId].auctionActive, "auction not active");
-    require(!auctions[_tokenId].satisfyInProgress, "auction is being satisfied");  // this should be added to other functions as well
+    require(auctions[_tokenId].flags[AUCTIONACTIVE], "auction not active");
+    require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction is being satisfied");  // this should be added to other functions as well
 
     if (piggies[_tokenId].flags.isRequest) {
-      uint256 _premiumToReturn = auctions[_tokenId].reservePrice;
+      uint256 _premiumToReturn = auctions[_tokenId].details[RESERVEPRICE];
       _clearAuctionDetails(_tokenId);
 
       // *** warning untrusted function call ***
@@ -740,11 +773,11 @@ contract SmartPiggies is UsingCompanion {
     nonReentrant
     returns (bool)
   {
-    require(!auctions[_tokenId].satisfyInProgress, "auction is being satisfied");
+    require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction is being satisfied");
     require(piggies[_tokenId].addresses.holder != msg.sender, "cannot satisfy auction; use endAuction");
-    require(auctions[_tokenId].auctionActive, "auction not active");
+    require(auctions[_tokenId].flags[AUCTIONACTIVE], "auction not active");
     // if auction is "active" according to state but has expired, change state
-    if (auctions[_tokenId].expiryBlock < block.number) {
+    if (auctions[_tokenId].details[EXPIRYBLOCK] < block.number) {
       _clearAuctionDetails(_tokenId);
       return false;
     }
@@ -752,7 +785,7 @@ contract SmartPiggies is UsingCompanion {
     uint256 _auctionPremium = _getAuctionPrice(_tokenId);
 
     // lock mutex
-    auctions[_tokenId].satisfyInProgress = true;
+    auctions[_tokenId].flags[SATISFYINPROGRESS] = true;
 
     bool success; // return bool from a token transfer
     bytes memory result; // return data from a token transfer
@@ -772,7 +805,7 @@ contract SmartPiggies is UsingCompanion {
       );
       txCheck = abi.decode(result, (bytes32));
       if (!success || txCheck != TX_SUCCESS) {
-        auctions[_tokenId].satisfyInProgress = false;
+        auctions[_tokenId].flags[SATISFYINPROGRESS] = false;
         return false;
       }
       // if the collateral transfer succeeded, reqCollateral gets set to collateral
@@ -780,10 +813,10 @@ contract SmartPiggies is UsingCompanion {
       // calculate adjusted premium (based on reservePrice) + possible change due back to current holder
       uint256 _change = 0;
       uint256 _adjPremium = _auctionPremium;
-      if (_adjPremium > auctions[_tokenId].reservePrice) {
-        _adjPremium = auctions[_tokenId].reservePrice;
+      if (_adjPremium > auctions[_tokenId].details[RESERVEPRICE]) {
+        _adjPremium = auctions[_tokenId].details[RESERVEPRICE];
       } else {
-        _change = auctions[_tokenId].reservePrice.sub(_adjPremium);
+        _change = auctions[_tokenId].details[RESERVEPRICE].sub(_adjPremium);
       }
       // *** warning untrusted function call ***
       // current holder pays premium (via amount already delegated to this contract in startAuction)
@@ -826,8 +859,8 @@ contract SmartPiggies is UsingCompanion {
     } else {
       // calculate the adjusted premium based on reservePrice
       uint256 _adjPremium = _auctionPremium;
-      if (_adjPremium < auctions[_tokenId].reservePrice) {
-        _adjPremium = auctions[_tokenId].reservePrice;
+      if (_adjPremium < auctions[_tokenId].details[RESERVEPRICE]) {
+        _adjPremium = auctions[_tokenId].details[RESERVEPRICE];
       }
       // *** warning untrusted function call ***
       // msg.sender pays (adjusted) premium
@@ -839,7 +872,7 @@ contract SmartPiggies is UsingCompanion {
       );
       txCheck = abi.decode(result, (bytes32));
       if (!success || txCheck != TX_SUCCESS) {
-        auctions[_tokenId].satisfyInProgress = false;
+        auctions[_tokenId].flags[SATISFYINPROGRESS] = false;
         return false;
       }
       // msg.sender becomes holder
@@ -857,7 +890,7 @@ contract SmartPiggies is UsingCompanion {
     // auction is ended
     _clearAuctionDetails(_tokenId);
     // mutex released
-    auctions[_tokenId].satisfyInProgress = false;
+    auctions[_tokenId].flags[SATISFYINPROGRESS] = false;
     return true;
   }
 
@@ -886,7 +919,7 @@ contract SmartPiggies is UsingCompanion {
     returns (bool)
   {
     require(msg.sender != address(0));
-    require(!auctions[_tokenId].auctionActive, "auction active");
+    require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
     require(_tokenId != 0, "tokenId cannot be zero");
 
@@ -901,10 +934,10 @@ contract SmartPiggies is UsingCompanion {
     }
 
     address dataResolver = piggies[_tokenId].addresses.dataResolver;
-    uint8 requestType = uint8 (RequestType.Settlement);
+    uint8 request = uint8 (RequestType.Settlement);
     bytes memory payload = abi.encodeWithSignature(
       "fetchData(address,uint256,uint256,uint8)",
-      msg.sender, _oracleFee, _tokenId, requestType
+      msg.sender, _oracleFee, _tokenId, request
     );
     // *** warning untrusted function call ***
     //(bool success, bytes memory result) = address(dataResolver).call(
@@ -1152,6 +1185,8 @@ contract SmartPiggies is UsingCompanion {
   function _clearAuctionDetails(uint256 _tokenId)
     internal
   {
+    delete auctions[_tokenId];
+    /**
     auctions[_tokenId].startBlock = 0;
     auctions[_tokenId].expiryBlock = 0;
     auctions[_tokenId].startPrice = 0;
@@ -1159,6 +1194,7 @@ contract SmartPiggies is UsingCompanion {
     auctions[_tokenId].timeStep = 0;
     auctions[_tokenId].priceStep = 0;
     auctions[_tokenId].auctionActive = false;
+    **/
   }
 
   // calculate the price for satisfaction of an auction
@@ -1169,8 +1205,14 @@ contract SmartPiggies is UsingCompanion {
     returns (uint256)
   {
 
-    uint256 _pStart = auctions[_tokenId].startPrice;
-    uint256 _pDelta = (block.number).sub(auctions[_tokenId].startBlock).mul(auctions[_tokenId].priceStep).div(auctions[_tokenId].timeStep);
+    uint256 _pStart = auctions[_tokenId].details[STARTPRICE];
+    uint256 _pDelta = (block.number).sub(
+      auctions[_tokenId].details[STARTBLOCK]
+    ).mul(
+      auctions[_tokenId].details[PRICESTEP]
+    ).div(
+      auctions[_tokenId].details[TIMESTEP]
+    );
     if (piggies[_tokenId].flags.isRequest) {
       return _pStart.add(_pDelta);
     } else {

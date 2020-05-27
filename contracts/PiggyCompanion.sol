@@ -139,7 +139,44 @@ contract Serviced is Freezable {
 }
 
 
-contract PiggyCompanion is Serviced {
+contract UsingConstants is Serviced {
+  /** Auction Detail
+   *  details[0] - Start Block
+   *  details[1] - Expiry Block
+   *  details[2] - Start Price
+   *  details[3] - Reserve Price
+   *  details[4] - Time Step
+   *  details[5] - Price Step
+   *  details[6] - Limit Bid
+   *  details[7] - Oracle Price
+   *  details[8] - Auction Premium
+   *  details[9] - Cooldown Period
+   *  address    - Active Bidding Account
+   *  uint8      - RFP Nonce
+   *  flags[0]   - Auction Active
+   *  flags[1]   - Bid Limit Set
+   *  flags[2]   - Bid Cleared
+   *  flags[3]   - Satisfy In Progress
+  */
+  uint8 constant STARTBLOCK     = 0;
+  uint8 constant EXPIRYBLOCK    = 1;
+  uint8 constant STARTPRICE     = 2;
+  uint8 constant RESERVEPRICE   = 3;
+  uint8 constant TIMESTEP       = 4;
+  uint8 constant PRICESTEP      = 5;
+  uint8 constant LIMITPRICE     = 6;
+  uint8 constant ORACLEPRICE    = 7;
+  uint8 constant AUCTIONPREMIUM = 8;
+  uint8 constant COOLDOWN       = 9;
+
+  uint8 constant AUCTIONACTIVE     = 0;
+  uint8 constant BIDLIMITSET       = 1;
+  uint8 constant BIDCLEARED        = 2;
+  uint8 constant SATISFYINPROGRESS = 3; // flags[3] mutex guard to disallow ending an auction if a transaction to satisfy is in progress
+}
+
+
+contract PiggyCompanion is UsingConstants {
   //maintain storage layout of SmartPiggies contract
   uint256 public cooldown;
   address public helperAddress; // Smart Helper contract address in SmartPiggies slot
@@ -197,14 +234,10 @@ contract PiggyCompanion is Serviced {
   }
 
   struct DetailAuction {
-    uint256 startBlock;
-    uint256 expiryBlock;
-    uint256 startPrice;
-    uint256 reservePrice;
-    uint256 timeStep;
-    uint256 priceStep;
-    bool auctionActive;
-    bool satisfyInProgress;  // mutex guard to disallow ending an auction if a transaction to satisfy is in progress
+    uint256[10] details;
+    address activeBidder;
+    uint8 rfpNonce;
+    bool[4] flags;
   }
 
   struct Piggy {
@@ -286,7 +319,7 @@ contract PiggyCompanion is Serviced {
   {
     require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be the holder");
     require(piggies[_tokenId].flags.isRequest, "you can only update an RFP");
-    require(!auctions[_tokenId].satisfyInProgress, "auction in process of being satisfied");
+    require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction in process of being satisfied");
     uint256 expiryBlock;
     if (_collateralERC != address(0)) {
       piggies[_tokenId].addresses.collateralERC = _collateralERC;
@@ -391,7 +424,7 @@ contract PiggyCompanion is Serviced {
     returns (bool)
   {
     require(_newArbiter != address(0), "arbiter address cannot be zero");
-    require(!auctions[_tokenId].auctionActive, "token cannot be on auction");
+    require(!auctions[_tokenId].flags[AUCTIONACTIVE], "token cannot be on auction");
     address _holder = piggies[_tokenId].addresses.holder;
     address _writer = piggies[_tokenId].addresses.writer;
     require(msg.sender == _holder || msg.sender == _writer, "only writer or holder can propose a new arbiter");
@@ -543,7 +576,7 @@ contract PiggyCompanion is Serviced {
       require(!piggies[_splitTokenId].flags.isRequest, "token cannot be an RFP");
       require(piggies[_splitTokenId].addresses.holder == msg.sender, "only the holder can split");
       require(block.number < piggies[_splitTokenId].uintDetails.expiry, "cannot split expired token");
-      require(!auctions[_splitTokenId].auctionActive, "cannot split token on auction");
+      require(!auctions[_splitTokenId].flags[AUCTIONACTIVE], "cannot split token on auction");
       require(!piggies[_splitTokenId].flags.hasBeenCleared, "cannot split cleared token");
       tokenExpiry = piggies[_splitTokenId].uintDetails.expiry;
       p.addresses.writer = piggies[_splitTokenId].addresses.writer;

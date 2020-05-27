@@ -2469,15 +2469,15 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         balanceBefore = result[2]
-        expiryBlock = result[3].expiryBlock
+        expiryBlock = result[3].details[1]
 
-        assert.strictEqual(result[3].startBlock.toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result[3].expiryBlock.toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result[3].startPrice.toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result[3].timeStep.toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result[3].priceStep.toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
-        assert.isTrue(result[3].auctionActive, "getAuctionDetails did not return true for auction active")
-        assert.isNotTrue(result[3].satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result[3].details[0].toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result[3].details[1].toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result[3].details[2].toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result[3].details[4].toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result[3].details[5].toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
+        assert.isTrue(result[3].flags[0], "getAuctionDetails did not return true for auction active")
+        assert.isNotTrue(result[3].flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
@@ -2494,6 +2494,7 @@ contract ('SmartPiggies', function(accounts) {
               auctionPrice = reservePrice
           }
         })
+
       })
       .then(() => {
         return piggyInstance.getDetails(tokenId, {from: user01})
@@ -2571,7 +2572,7 @@ contract ('SmartPiggies', function(accounts) {
         //console.log("start: ", result.startBlock)
         //console.log("end: ", result.expiryBlock)
         expiryBlock = result.expiryBlock
-        startBlock = web3.utils.toBN(result.startBlock)
+        startBlock = web3.utils.toBN(result.details[0])
 
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
@@ -2680,15 +2681,15 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        expiryBlock = result.expiryBlock
+        expiryBlock = result.details[1]
 
-        assert.strictEqual(result.startBlock.toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
-        assert.isTrue(result.auctionActive, "getAuctionDetails did not return true for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
+        assert.isTrue(result.flags[0], "getAuctionDetails did not return true for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
@@ -3024,7 +3025,7 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        assert.isTrue(result.auctionActive, "getAuctionDetails did not return true for auctionActive")
+        assert.isTrue(result.flags[0], "getAuctionDetails did not return true for auctionActive")
 
         return expectedExceptionPromise(
             () => piggyInstance.startAuction(
@@ -3153,13 +3154,13 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        assert.strictEqual(result.startBlock.toString(), "0", "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), "0", "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), "0", "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), "0", "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), "0", "getAuctionDetails did not return the correct price step")
-        assert.isNotTrue(result.auctionActive, "getAuctionDetails did not return false for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), "0", "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), "0", "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), "0", "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), "0", "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), "0", "getAuctionDetails did not return the correct price step")
+        assert.isNotTrue(result.flags[0], "getAuctionDetails did not return false for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
       })
       //end test block
     });
@@ -3221,13 +3222,13 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        assert.strictEqual(result.startBlock.toString(), "0", "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), "0", "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), "0", "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), "0", "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), "0", "getAuctionDetails did not return the correct price step")
-        assert.isNotTrue(result.auctionActive, "getAuctionDetails did not return false for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), "0", "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), "0", "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), "0", "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), "0", "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), "0", "getAuctionDetails did not return the correct price step")
+        assert.isNotTrue(result.flags[0], "getAuctionDetails did not return false for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         return tokenInstance.balanceOf(owner, {from: owner})
       })
@@ -3398,8 +3399,8 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        expiryBlock = result.expiryBlock
-        startBlock = web3.utils.toBN(result.startBlock)
+        expiryBlock = result.details[1]
+        startBlock = web3.utils.toBN(result.details[0])
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
       .then(result => {
@@ -3446,13 +3447,13 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         //check that auction reset was triggered
-        assert.strictEqual(result.startBlock.toString(), "0", "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), "0", "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), "0", "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), "0", "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), "0", "getAuctionDetails did not return the correct price step")
-        assert.isNotTrue(result.auctionActive, "getAuctionDetails did not return false for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), "0", "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), "0", "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), "0", "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), "0", "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), "0", "getAuctionDetails did not return the correct price step")
+        assert.isNotTrue(result.flags[0], "getAuctionDetails did not return false for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         //get balances
         return sequentialPromise([
@@ -3528,8 +3529,8 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        expiryBlock = result.expiryBlock
-        startBlock = web3.utils.toBN(result.startBlock)
+        expiryBlock = result.details[1]
+        startBlock = web3.utils.toBN(result.details[0])
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
       .then(result => {
@@ -3567,13 +3568,13 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         //check that auction reset was triggered
-        assert.strictEqual(result.startBlock.toString(), "0", "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), "0", "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), "0", "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), "0", "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), "0", "getAuctionDetails did not return the correct price step")
-        assert.isNotTrue(result.auctionActive, "getAuctionDetails did not return false for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), "0", "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), "0", "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), "0", "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), "0", "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), "0", "getAuctionDetails did not return the correct price step")
+        assert.isNotTrue(result.flags[0], "getAuctionDetails did not return false for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         //get balances
         return sequentialPromise([
@@ -3648,15 +3649,15 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getAuctionDetails(tokenId, {from: owner})
       })
       .then(result => {
-        expiryBlock = web3.utils.toBN(result.expiryBlock)
+        expiryBlock = web3.utils.toBN(result.details[1])
 
-        assert.strictEqual(result.startBlock.toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
-        assert.isTrue(result.auctionActive, "getAuctionDetails did not return true for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), startBlock.toString(), "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), startBlock.add(auctionLength).toString(), "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), startPrice.toString(), "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), timeStep.toString(), "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), priceStep.toString(), "getAuctionDetails did not return the correct price step")
+        assert.isTrue(result.flags[0], "getAuctionDetails did not return true for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
 
         return piggyInstance.satisfyAuction(tokenId, zeroNonce, {from: user01})
       })
@@ -3672,13 +3673,13 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         //check that auction reset was triggered
-        assert.strictEqual(result.startBlock.toString(), "0", "getAuctionDetails did not return the correct start block")
-        assert.strictEqual(result.expiryBlock.toString(), "0", "getAuctionDetails did not return the correct expiry block")
-        assert.strictEqual(result.startPrice.toString(), "0", "getAuctionDetails did not return the correct start price")
-        assert.strictEqual(result.timeStep.toString(), "0", "getAuctionDetails did not return the correct time step")
-        assert.strictEqual(result.priceStep.toString(), "0", "getAuctionDetails did not return the correct price step")
-        assert.isNotTrue(result.auctionActive, "getAuctionDetails did not return false for auction active")
-        assert.isNotTrue(result.satisfyInProgress, "getAuctionDetails did not return false for satisfyInProgress")
+        assert.strictEqual(result.details[0].toString(), "0", "getAuctionDetails did not return the correct start block")
+        assert.strictEqual(result.details[1].toString(), "0", "getAuctionDetails did not return the correct expiry block")
+        assert.strictEqual(result.details[2].toString(), "0", "getAuctionDetails did not return the correct start price")
+        assert.strictEqual(result.details[4].toString(), "0", "getAuctionDetails did not return the correct time step")
+        assert.strictEqual(result.details[5].toString(), "0", "getAuctionDetails did not return the correct price step")
+        assert.isNotTrue(result.flags[0], "getAuctionDetails did not return false for auction active")
+        assert.isNotTrue(result.flags[3], "getAuctionDetails did not return false for satisfyInProgress")
       })
       //end test block
     });
