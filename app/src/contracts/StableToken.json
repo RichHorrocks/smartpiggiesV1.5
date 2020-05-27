@@ -452,14 +452,14 @@
     "absolutePath": "/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/StableToken.sol",
     "exportedSymbols": {
       "StableToken": [
-        24102
+        23404
       ]
     },
-    "id": 24103,
+    "id": 23405,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 24052,
+        "id": 23354,
         "literals": [
           "solidity",
           ">=",
@@ -475,10 +475,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
-        "id": 24053,
+        "id": 23355,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25033,
+        "scope": 23405,
+        "sourceUnit": 24335,
         "src": "34:63:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -486,10 +486,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
-        "id": 24054,
+        "id": 23356,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25122,
+        "scope": 23405,
+        "sourceUnit": 24424,
         "src": "98:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -497,10 +497,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol",
-        "id": 24055,
+        "id": 23357,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25064,
+        "scope": 23405,
+        "sourceUnit": 24366,
         "src": "170:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -508,10 +508,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol",
-        "id": 24056,
+        "id": 23358,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25150,
+        "scope": 23405,
+        "sourceUnit": 24452,
         "src": "242:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -522,17 +522,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24057,
+              "id": 23359,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25032,
+              "referencedDeclaration": 24334,
               "src": "339:5:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$25032",
+                "typeIdentifier": "t_contract$_ERC20_$24334",
                 "typeString": "contract ERC20"
               }
             },
-            "id": 24058,
+            "id": 23360,
             "nodeType": "InheritanceSpecifier",
             "src": "339:5:19"
           },
@@ -540,17 +540,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24059,
+              "id": 23361,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25121,
+              "referencedDeclaration": 24423,
               "src": "346:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$25121",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$24423",
                 "typeString": "contract ERC20Detailed"
               }
             },
-            "id": 24060,
+            "id": 23362,
             "nodeType": "InheritanceSpecifier",
             "src": "346:13:19"
           },
@@ -558,17 +558,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24061,
+              "id": 23363,
               "name": "ERC20Mintable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25149,
+              "referencedDeclaration": 24451,
               "src": "361:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Mintable_$25149",
+                "typeIdentifier": "t_contract$_ERC20Mintable_$24451",
                 "typeString": "contract ERC20Mintable"
               }
             },
-            "id": 24062,
+            "id": 23364,
             "nodeType": "InheritanceSpecifier",
             "src": "361:13:19"
           },
@@ -576,51 +576,51 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24063,
+              "id": 23365,
               "name": "ERC20Burnable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25063,
+              "referencedDeclaration": 24365,
               "src": "376:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Burnable_$25063",
+                "typeIdentifier": "t_contract$_ERC20Burnable_$24365",
                 "typeString": "contract ERC20Burnable"
               }
             },
-            "id": 24064,
+            "id": 23366,
             "nodeType": "InheritanceSpecifier",
             "src": "376:13:19"
           }
         ],
         "contractDependencies": [
-          24472,
-          25032,
-          25063,
-          25121,
-          25149,
-          25218
+          23774,
+          24334,
+          24365,
+          24423,
+          24451,
+          24520
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 24102,
+        "id": 23404,
         "linearizedBaseContracts": [
-          24102,
-          25063,
-          25149,
-          24472,
-          25121,
-          25032,
-          25218
+          23404,
+          24365,
+          24451,
+          23774,
+          24423,
+          24334,
+          24520
         ],
         "name": "StableToken",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 24066,
+            "id": 23368,
             "name": "owner",
             "nodeType": "VariableDeclaration",
-            "scope": 24102,
+            "scope": 23404,
             "src": "504:21:19",
             "stateVariable": true,
             "storageLocation": "default",
@@ -629,7 +629,7 @@
               "typeString": "address payable"
             },
             "typeName": {
-              "id": 24065,
+              "id": 23367,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "504:15:19",
@@ -644,25 +644,25 @@
           },
           {
             "body": {
-              "id": 24085,
+              "id": 23387,
               "nodeType": "Block",
               "src": "653:29:19",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 24083,
+                    "id": 23385,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 24080,
+                      "id": 23382,
                       "name": "owner",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 24066,
+                      "referencedDeclaration": 23368,
                       "src": "659:5:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address_payable",
@@ -675,18 +675,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 24081,
+                        "id": 23383,
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 25233,
+                        "referencedDeclaration": 24535,
                         "src": "667:3:19",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
                           "typeString": "msg"
                         }
                       },
-                      "id": 24082,
+                      "id": 23384,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -706,30 +706,30 @@
                       "typeString": "address payable"
                     }
                   },
-                  "id": 24084,
+                  "id": 23386,
                   "nodeType": "ExpressionStatement",
                   "src": "659:18:19"
                 }
               ]
             },
             "documentation": null,
-            "id": 24086,
+            "id": 23388,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [
               {
                 "arguments": [],
-                "id": 24069,
+                "id": 23371,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24068,
+                  "id": 23370,
                   "name": "ERC20Burnable",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25063,
+                  "referencedDeclaration": 24365,
                   "src": "548:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Burnable_$25063_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Burnable_$24365_$",
                     "typeString": "type(contract ERC20Burnable)"
                   }
                 },
@@ -738,17 +738,17 @@
               },
               {
                 "arguments": [],
-                "id": 24071,
+                "id": 23373,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24070,
+                  "id": 23372,
                   "name": "ERC20Mintable",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25149,
+                  "referencedDeclaration": 24451,
                   "src": "568:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Mintable_$25149_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Mintable_$24451_$",
                     "typeString": "type(contract ERC20Mintable)"
                   }
                 },
@@ -760,7 +760,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "537461626c65546f6b656e",
-                    "id": 24073,
+                    "id": 23375,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -778,7 +778,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "5354424c45",
-                    "id": 24074,
+                    "id": 23376,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -796,7 +796,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "3138",
-                    "id": 24075,
+                    "id": 23377,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -812,17 +812,17 @@
                     "value": "18"
                   }
                 ],
-                "id": 24076,
+                "id": 23378,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24072,
+                  "id": 23374,
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25121,
+                  "referencedDeclaration": 24423,
                   "src": "588:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$25121_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$24423_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -831,17 +831,17 @@
               },
               {
                 "arguments": [],
-                "id": 24078,
+                "id": 23380,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24077,
+                  "id": 23379,
                   "name": "ERC20",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25032,
+                  "referencedDeclaration": 24334,
                   "src": "632:5:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20_$25032_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20_$24334_$",
                     "typeString": "type(contract ERC20)"
                   }
                 },
@@ -852,18 +852,18 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24067,
+              "id": 23369,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "541:2:19"
             },
             "returnParameters": {
-              "id": 24079,
+              "id": 23381,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "653:0:19"
             },
-            "scope": 24102,
+            "scope": 23404,
             "src": "530:152:19",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -871,7 +871,7 @@
           },
           {
             "body": {
-              "id": 24100,
+              "id": 23402,
               "nodeType": "Block",
               "src": "711:64:19",
               "statements": [
@@ -885,7 +885,7 @@
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
                         },
-                        "id": 24093,
+                        "id": 23395,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -894,18 +894,18 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 24090,
+                            "id": 23392,
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 25233,
+                            "referencedDeclaration": 24535,
                             "src": "725:3:19",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
                               "typeString": "msg"
                             }
                           },
-                          "id": 24091,
+                          "id": 23393,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -923,11 +923,11 @@
                         "operator": "==",
                         "rightExpression": {
                           "argumentTypes": null,
-                          "id": 24092,
+                          "id": 23394,
                           "name": "owner",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 24066,
+                          "referencedDeclaration": 23368,
                           "src": "739:5:19",
                           "typeDescriptions": {
                             "typeIdentifier": "t_address_payable",
@@ -948,21 +948,21 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 24089,
+                      "id": 23391,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        25236,
-                        25237
+                        24538,
+                        24539
                       ],
-                      "referencedDeclaration": 25236,
+                      "referencedDeclaration": 24538,
                       "src": "717:7:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                         "typeString": "function (bool) pure"
                       }
                     },
-                    "id": 24094,
+                    "id": 23396,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -976,7 +976,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 24095,
+                  "id": 23397,
                   "nodeType": "ExpressionStatement",
                   "src": "717:28:19"
                 },
@@ -986,11 +986,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 24097,
+                        "id": 23399,
                         "name": "owner",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 24066,
+                        "referencedDeclaration": 23368,
                         "src": "764:5:19",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
@@ -1005,18 +1005,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 24096,
+                      "id": 23398,
                       "name": "selfdestruct",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 25241,
+                      "referencedDeclaration": 24543,
                       "src": "751:12:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_selfdestruct_nonpayable$_t_address_payable_$returns$__$",
                         "typeString": "function (address payable)"
                       }
                     },
-                    "id": 24098,
+                    "id": 23400,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1030,39 +1030,39 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 24099,
+                  "id": 23401,
                   "nodeType": "ExpressionStatement",
                   "src": "751:19:19"
                 }
               ]
             },
             "documentation": null,
-            "id": 24101,
+            "id": 23403,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "kill",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24087,
+              "id": 23389,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "699:2:19"
             },
             "returnParameters": {
-              "id": 24088,
+              "id": 23390,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "711:0:19"
             },
-            "scope": 24102,
+            "scope": 23404,
             "src": "686:89:19",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 24103,
+        "scope": 23405,
         "src": "315:463:19"
       }
     ],
@@ -1072,14 +1072,14 @@
     "absolutePath": "/home/vagrant/DAPPS/smartpiggiesGithub/smartpiggiesV1.5/contracts/StableToken.sol",
     "exportedSymbols": {
       "StableToken": [
-        24102
+        23404
       ]
     },
-    "id": 24103,
+    "id": 23405,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 24052,
+        "id": 23354,
         "literals": [
           "solidity",
           ">=",
@@ -1095,10 +1095,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
-        "id": 24053,
+        "id": 23355,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25033,
+        "scope": 23405,
+        "sourceUnit": 24335,
         "src": "34:63:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1106,10 +1106,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol",
-        "id": 24054,
+        "id": 23356,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25122,
+        "scope": 23405,
+        "sourceUnit": 24424,
         "src": "98:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1117,10 +1117,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol",
-        "id": 24055,
+        "id": 23357,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25064,
+        "scope": 23405,
+        "sourceUnit": 24366,
         "src": "170:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1128,10 +1128,10 @@
       {
         "absolutePath": "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol",
         "file": "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol",
-        "id": 24056,
+        "id": 23358,
         "nodeType": "ImportDirective",
-        "scope": 24103,
-        "sourceUnit": 25150,
+        "scope": 23405,
+        "sourceUnit": 24452,
         "src": "242:71:19",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1142,17 +1142,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24057,
+              "id": 23359,
               "name": "ERC20",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25032,
+              "referencedDeclaration": 24334,
               "src": "339:5:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20_$25032",
+                "typeIdentifier": "t_contract$_ERC20_$24334",
                 "typeString": "contract ERC20"
               }
             },
-            "id": 24058,
+            "id": 23360,
             "nodeType": "InheritanceSpecifier",
             "src": "339:5:19"
           },
@@ -1160,17 +1160,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24059,
+              "id": 23361,
               "name": "ERC20Detailed",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25121,
+              "referencedDeclaration": 24423,
               "src": "346:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Detailed_$25121",
+                "typeIdentifier": "t_contract$_ERC20Detailed_$24423",
                 "typeString": "contract ERC20Detailed"
               }
             },
-            "id": 24060,
+            "id": 23362,
             "nodeType": "InheritanceSpecifier",
             "src": "346:13:19"
           },
@@ -1178,17 +1178,17 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24061,
+              "id": 23363,
               "name": "ERC20Mintable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25149,
+              "referencedDeclaration": 24451,
               "src": "361:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Mintable_$25149",
+                "typeIdentifier": "t_contract$_ERC20Mintable_$24451",
                 "typeString": "contract ERC20Mintable"
               }
             },
-            "id": 24062,
+            "id": 23364,
             "nodeType": "InheritanceSpecifier",
             "src": "361:13:19"
           },
@@ -1196,51 +1196,51 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 24063,
+              "id": 23365,
               "name": "ERC20Burnable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 25063,
+              "referencedDeclaration": 24365,
               "src": "376:13:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20Burnable_$25063",
+                "typeIdentifier": "t_contract$_ERC20Burnable_$24365",
                 "typeString": "contract ERC20Burnable"
               }
             },
-            "id": 24064,
+            "id": 23366,
             "nodeType": "InheritanceSpecifier",
             "src": "376:13:19"
           }
         ],
         "contractDependencies": [
-          24472,
-          25032,
-          25063,
-          25121,
-          25149,
-          25218
+          23774,
+          24334,
+          24365,
+          24423,
+          24451,
+          24520
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 24102,
+        "id": 23404,
         "linearizedBaseContracts": [
-          24102,
-          25063,
-          25149,
-          24472,
-          25121,
-          25032,
-          25218
+          23404,
+          24365,
+          24451,
+          23774,
+          24423,
+          24334,
+          24520
         ],
         "name": "StableToken",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 24066,
+            "id": 23368,
             "name": "owner",
             "nodeType": "VariableDeclaration",
-            "scope": 24102,
+            "scope": 23404,
             "src": "504:21:19",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1249,7 +1249,7 @@
               "typeString": "address payable"
             },
             "typeName": {
-              "id": 24065,
+              "id": 23367,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "504:15:19",
@@ -1264,25 +1264,25 @@
           },
           {
             "body": {
-              "id": 24085,
+              "id": 23387,
               "nodeType": "Block",
               "src": "653:29:19",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 24083,
+                    "id": 23385,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 24080,
+                      "id": 23382,
                       "name": "owner",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 24066,
+                      "referencedDeclaration": 23368,
                       "src": "659:5:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address_payable",
@@ -1295,18 +1295,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 24081,
+                        "id": 23383,
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 25233,
+                        "referencedDeclaration": 24535,
                         "src": "667:3:19",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
                           "typeString": "msg"
                         }
                       },
-                      "id": 24082,
+                      "id": 23384,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1326,30 +1326,30 @@
                       "typeString": "address payable"
                     }
                   },
-                  "id": 24084,
+                  "id": 23386,
                   "nodeType": "ExpressionStatement",
                   "src": "659:18:19"
                 }
               ]
             },
             "documentation": null,
-            "id": 24086,
+            "id": 23388,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [
               {
                 "arguments": [],
-                "id": 24069,
+                "id": 23371,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24068,
+                  "id": 23370,
                   "name": "ERC20Burnable",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25063,
+                  "referencedDeclaration": 24365,
                   "src": "548:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Burnable_$25063_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Burnable_$24365_$",
                     "typeString": "type(contract ERC20Burnable)"
                   }
                 },
@@ -1358,17 +1358,17 @@
               },
               {
                 "arguments": [],
-                "id": 24071,
+                "id": 23373,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24070,
+                  "id": 23372,
                   "name": "ERC20Mintable",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25149,
+                  "referencedDeclaration": 24451,
                   "src": "568:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Mintable_$25149_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Mintable_$24451_$",
                     "typeString": "type(contract ERC20Mintable)"
                   }
                 },
@@ -1380,7 +1380,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "537461626c65546f6b656e",
-                    "id": 24073,
+                    "id": 23375,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1398,7 +1398,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "5354424c45",
-                    "id": 24074,
+                    "id": 23376,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1416,7 +1416,7 @@
                   {
                     "argumentTypes": null,
                     "hexValue": "3138",
-                    "id": 24075,
+                    "id": 23377,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1432,17 +1432,17 @@
                     "value": "18"
                   }
                 ],
-                "id": 24076,
+                "id": 23378,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24072,
+                  "id": 23374,
                   "name": "ERC20Detailed",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25121,
+                  "referencedDeclaration": 24423,
                   "src": "588:13:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$25121_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20Detailed_$24423_$",
                     "typeString": "type(contract ERC20Detailed)"
                   }
                 },
@@ -1451,17 +1451,17 @@
               },
               {
                 "arguments": [],
-                "id": 24078,
+                "id": 23380,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 24077,
+                  "id": 23379,
                   "name": "ERC20",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 25032,
+                  "referencedDeclaration": 24334,
                   "src": "632:5:19",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_ERC20_$25032_$",
+                    "typeIdentifier": "t_type$_t_contract$_ERC20_$24334_$",
                     "typeString": "type(contract ERC20)"
                   }
                 },
@@ -1472,18 +1472,18 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24067,
+              "id": 23369,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "541:2:19"
             },
             "returnParameters": {
-              "id": 24079,
+              "id": 23381,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "653:0:19"
             },
-            "scope": 24102,
+            "scope": 23404,
             "src": "530:152:19",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1491,7 +1491,7 @@
           },
           {
             "body": {
-              "id": 24100,
+              "id": 23402,
               "nodeType": "Block",
               "src": "711:64:19",
               "statements": [
@@ -1505,7 +1505,7 @@
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
                         },
-                        "id": 24093,
+                        "id": 23395,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1514,18 +1514,18 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 24090,
+                            "id": 23392,
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 25233,
+                            "referencedDeclaration": 24535,
                             "src": "725:3:19",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
                               "typeString": "msg"
                             }
                           },
-                          "id": 24091,
+                          "id": 23393,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1543,11 +1543,11 @@
                         "operator": "==",
                         "rightExpression": {
                           "argumentTypes": null,
-                          "id": 24092,
+                          "id": 23394,
                           "name": "owner",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 24066,
+                          "referencedDeclaration": 23368,
                           "src": "739:5:19",
                           "typeDescriptions": {
                             "typeIdentifier": "t_address_payable",
@@ -1568,21 +1568,21 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 24089,
+                      "id": 23391,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        25236,
-                        25237
+                        24538,
+                        24539
                       ],
-                      "referencedDeclaration": 25236,
+                      "referencedDeclaration": 24538,
                       "src": "717:7:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                         "typeString": "function (bool) pure"
                       }
                     },
-                    "id": 24094,
+                    "id": 23396,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1596,7 +1596,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 24095,
+                  "id": 23397,
                   "nodeType": "ExpressionStatement",
                   "src": "717:28:19"
                 },
@@ -1606,11 +1606,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 24097,
+                        "id": 23399,
                         "name": "owner",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 24066,
+                        "referencedDeclaration": 23368,
                         "src": "764:5:19",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
@@ -1625,18 +1625,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 24096,
+                      "id": 23398,
                       "name": "selfdestruct",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 25241,
+                      "referencedDeclaration": 24543,
                       "src": "751:12:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_selfdestruct_nonpayable$_t_address_payable_$returns$__$",
                         "typeString": "function (address payable)"
                       }
                     },
-                    "id": 24098,
+                    "id": 23400,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1650,39 +1650,39 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 24099,
+                  "id": 23401,
                   "nodeType": "ExpressionStatement",
                   "src": "751:19:19"
                 }
               ]
             },
             "documentation": null,
-            "id": 24101,
+            "id": 23403,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "kill",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24087,
+              "id": 23389,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "699:2:19"
             },
             "returnParameters": {
-              "id": 24088,
+              "id": 23390,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "711:0:19"
             },
-            "scope": 24102,
+            "scope": 23404,
             "src": "686:89:19",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 24103,
+        "scope": 23405,
         "src": "315:463:19"
       }
     ],
@@ -1693,8 +1693,8 @@
     "version": "0.5.17+commit.d19bba13.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.1.0",
-  "updatedAt": "2020-05-13T17:24:01.924Z",
+  "schemaVersion": "3.2.0",
+  "updatedAt": "2020-05-27T06:48:30.010Z",
   "devdoc": {
     "methods": {
       "allowance(address,address)": {

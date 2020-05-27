@@ -332,7 +332,7 @@ contract SmartPiggiesReentry is UsingConstants {
   }
 
   mapping (address => mapping(address => uint256)) private ERC20balances;
-  mapping (address => uint256) private bidBalances;
+  mapping (address => mapping(uint256 => uint256)) private bidBalances;
   mapping (address => uint256[]) private ownedPiggies;
   mapping (uint256 => uint256) private ownedPiggiesIndex;
   mapping (uint256 => Piggy) private piggies;
@@ -670,10 +670,6 @@ contract SmartPiggiesReentry is UsingConstants {
     require(msg.sender == piggies[_tokenId].accounts.holder, "sender must be holder");
     require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
 
-    emit ReclaimAndBurn(msg.sender, _tokenId, piggies[_tokenId].flags.isRequest);
-    // remove id from index mapping
-    _removeTokenFromOwnedPiggies(piggies[_tokenId].accounts.holder, _tokenId);
-
     if (!piggies[_tokenId].flags.isRequest) {
       require(msg.sender == piggies[_tokenId].accounts.writer, "sender must own collateral");
 
@@ -681,21 +677,12 @@ contract SmartPiggiesReentry is UsingConstants {
       address collateralERC = piggies[_tokenId].accounts.collateralERC;
       // keep collateral
       uint256 collateral = piggies[_tokenId].uintDetails.collateral;
-      // burn the token (zero out storage fields)
-      _resetPiggy(_tokenId);
 
-      // *** warning untrusted function call ***
-      // return the collateral to sender
-      (bool success, bytes memory result) = address(collateralERC).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          msg.sender,
-          collateral
-        )
-      );
-      bytes32 txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+      ERC20balances[msg.sender][collateralERC] = ERC20balances[msg.sender][collateralERC].add(collateral);
     }
+    emit ReclaimAndBurn(msg.sender, _tokenId, piggies[_tokenId].flags.isRequest);
+    // remove id from index mapping
+    _removeTokenFromOwnedPiggies(piggies[_tokenId].accounts.holder, _tokenId);
     // burn the token (zero out storage fields)
     _resetPiggy(_tokenId);
     return true;
@@ -760,25 +747,45 @@ contract SmartPiggiesReentry is UsingConstants {
     nonReentrant
     returns (bool)
   {
-    require(piggies[_tokenId].accounts.holder == msg.sender, "sender must be holder");
+    require(msg.sender == piggies[_tokenId].accounts.holder, "sender must be holder");
     require(auctions[_tokenId].flags[AUCTIONACTIVE], "auction not active");
     require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction is being satisfied");  // this should be added to other functions as well
 
-    if (piggies[_tokenId].flags.isRequest) {
-      uint256 _premiumToReturn = auctions[_tokenId].details[RESERVEPRICE];
-      _clearAuctionDetails(_tokenId);
+    // set to reserve for RFP
+    uint256 premiumToReturn = auctions[_tokenId].details[RESERVEPRICE];
+    address bidder = auctions[_tokenId].activeBidder;
+    address collateralERC = piggies[_tokenId].accounts.collateralERC;
 
-      // *** warning untrusted function call ***
-      // refund the _reservePrice premium
-      (bool success, bytes memory result) = address(piggies[_tokenId].accounts.collateralERC).call(
-        abi.encodeWithSignature(
-          "transfer(address,uint256)",
-          msg.sender,
-          _premiumToReturn
-        )
-      );
-      bytes32 txCheck = abi.decode(result, (bytes32));
-      require(success && txCheck == TX_SUCCESS, "token transfer failed");
+    if (bidder != address(0)) {
+      if (piggies[_tokenId].flags.isRequest) {
+
+        // reset bidding balances
+        bidBalances[bidder][_tokenId] = 0;
+        bidBalances[msg.sender][_tokenId] = 0;
+
+        // return requested collateral to filler
+        ERC20balances[bidder][collateralERC] =
+          ERC20balances[bidder][collateralERC].add(piggies[_tokenId].uintDetails.reqCollateral);
+
+        // if RFP get back your reserve
+        ERC20balances[msg.sender][collateralERC] =
+          ERC20balances[msg.sender][collateralERC].add(premiumToReturn);
+
+      }
+      // not RFP, return auction premium to bidder
+      else {
+        // reset premiumToReturn to bid balance
+        premiumToReturn = auctions[_tokenId].details[AUCTIONPREMIUM]; // <- make this: auctions[_tokenId].details[8]
+        bidBalances[bidder][_tokenId] = 0;
+        //return auction premium to bidder
+        ERC20balances[bidder][collateralERC] =
+          ERC20balances[bidder][collateralERC].add(premiumToReturn);
+      }
+    }
+    else if (piggies[_tokenId].flags.isRequest) {
+      // refund the reserve price premium
+      ERC20balances[msg.sender][collateralERC] =
+        ERC20balances[msg.sender][collateralERC].add(premiumToReturn);
     }
 
     _clearAuctionDetails(_tokenId);

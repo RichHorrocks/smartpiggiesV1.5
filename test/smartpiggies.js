@@ -2715,7 +2715,11 @@ contract ('SmartPiggies', function(accounts) {
         return tokenInstance.balanceOf(user01, {from: user01})
       })
       .then(balanceNow => {
-        assert.strictEqual(balanceNow.toString(), balanceBefore.sub(collateral).add(auctionPrice).toString(), "User balance did not return correctly")
+        assert.strictEqual(balanceNow.toString(), balanceBefore.sub(collateral).toString(), "User balance did not return correctly")
+        return piggyInstance.getERC20Balance(user01, collateralERC, {from: user01})
+      })
+      .then(result => {
+        assert.strictEqual(result.toString(), auctionPrice.toString(), "User balance did not return correctly")
       })
       //end test block
     });
@@ -3233,7 +3237,11 @@ contract ('SmartPiggies', function(accounts) {
         return tokenInstance.balanceOf(owner, {from: owner})
       })
       .then(balance => {
-        assert.strictEqual(balance.toString(), balanceBefore.add(reservePrice).toString(), "Balance after endAuction did not return correctly")
+        assert.strictEqual(balance.toString(), balanceBefore.toString(), "Balance after endAuction did not return correctly")
+        return piggyInstance.getERC20Balance(owner, collateralERC, {from: owner})
+      })
+      .then(result => {
+        assert.strictEqual(result.toString(), reservePrice.toString(), "Balance after endAuction did not return correctly")
       })
       //end test block
     });
@@ -3458,10 +3466,11 @@ contract ('SmartPiggies', function(accounts) {
         //get balances
         return sequentialPromise([
           () => Promise.resolve(tokenInstance.balanceOf(owner, {from: owner})),
-          () => Promise.resolve(tokenInstance.balanceOf(user01, {from: owner}))
+          () => Promise.resolve(tokenInstance.balanceOf(user01, {from: owner})),
         ])
       })
       .then(result => {
+        // erc20 token balances
         assert.strictEqual(result[0].toString(), ownerBalanceBefore.add(auctionPrice).toString(), "Owner balance did not return correctly")
         assert.strictEqual(result[1].toString(), userBalanceBefore.sub(auctionPrice).toString(), "User balance did not return correctly")
       })
@@ -3579,12 +3588,20 @@ contract ('SmartPiggies', function(accounts) {
         //get balances
         return sequentialPromise([
           () => Promise.resolve(tokenInstance.balanceOf(owner, {from: owner})),
-          () => Promise.resolve(tokenInstance.balanceOf(user01, {from: owner}))
+          () => Promise.resolve(tokenInstance.balanceOf(user01, {from: owner})),
+          () => Promise.resolve(piggyInstance.getERC20Balance(owner, collateralERC, {from: owner})),
+          () => Promise.resolve(piggyInstance.getERC20Balance(user01, collateralERC, {from: owner})),
         ])
       })
       .then(result => {
-        assert.strictEqual(result[0].toString(), ownerBalanceBefore.add(reservePrice).sub(auctionPrice).toString(), "Owner balance did not return correctly")
-        assert.strictEqual(result[1].toString(), userBalanceBefore.sub(collateral).add(auctionPrice).toString(), "User balance did not return correctly")
+        // balances on token contract
+        // requestor
+        assert.strictEqual(result[0].toString(), ownerBalanceBefore.toString(), "Owner balance did not return correctly")
+        // filler
+        assert.strictEqual(result[1].toString(), userBalanceBefore.sub(collateral).toString(), "User balance did not return correctly")
+        // erc20 balances on smartpiggies contract
+        assert.strictEqual(result[2].toString(), reservePrice.sub(auctionPrice).toString(), "Owner balance did not return correctly")
+        assert.strictEqual(result[3].toString(), auctionPrice.toString(), "User balance did not return correctly")
       })
       //end test block
     });
@@ -6878,12 +6895,14 @@ contract ('SmartPiggies', function(accounts) {
           () => Promise.resolve(piggyInstance.reclaimAndBurn(tokenId, {from: owner})),
           () => Promise.resolve(piggyInstance.getOwnedPiggies(owner, {from: owner})),
           () => Promise.resolve(tokenInstance.balanceOf(owner, {from: owner})),
+          () => Promise.resolve(piggyInstance.getERC20Balance(owner, collateralERC, {from: owner})),
         ])
       })
       .then(result => {
         balanceBefore = web3.utils.toBN(result[0])
-        assert.strictEqual(result[3].toString(), balanceBefore.add(collateral).toString(), "owner balance did not update correctly")
+        assert.strictEqual(result[3].toString(), balanceBefore.toString(), "owner account balance did not update correctly")
         assert.strictEqual(result[2].toString(), '', "getOwnedPiggies did not return empty")
+        assert.strictEqual(result[4].toString(), collateral.toString(), "erc balance on contract did not return correctly")
       })
       //end test block
     });
@@ -6940,6 +6959,7 @@ contract ('SmartPiggies', function(accounts) {
 
   describe.skip("Testing Zero Address on all functions", function() {
     // Ganache fails when a zero address is supplied
+    // as the private key to address(0) is unknowne
   //end describe Zero Address block
   });
 

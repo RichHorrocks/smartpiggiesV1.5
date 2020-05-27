@@ -457,8 +457,8 @@
     "version": "0.5.17+commit.d19bba13.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.1.0",
-  "updatedAt": "2020-05-13T17:23:55.941Z",
+  "schemaVersion": "3.2.0",
+  "updatedAt": "2020-05-27T06:48:27.129Z",
   "devdoc": {
     "methods": {}
   },

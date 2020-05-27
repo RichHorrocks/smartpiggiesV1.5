@@ -426,7 +426,7 @@ contract ('SmartPiggies', function(accounts) {
 
   describe("Test attack on reclaimAndBurn function with reentrantcy guard", function() {
 
-    it("Should fail to attack reclaimAndBurn while reentering transferFrom", function() {
+    it("Should trip guard wtih attack to reclaimAndBurn while reentering transferFrom", function() {
       //American call
       collateralERC = tokenReclaimInstance.address
       dataResolver = resolverInstance.address
@@ -447,7 +447,6 @@ contract ('SmartPiggies', function(accounts) {
         () => Promise.resolve(piggyInstance.getOwnedPiggies(attacker, {from: user01})),
         () => Promise.resolve(tokenReclaimInstance.balanceOf(attacker , {from: user01})),
         () => Promise.resolve(tokenReclaimInstance.balanceOf(piggyInstance.address , {from: user01})),
-        () => Promise.resolve(tokenReclaimInstance.reclaim({from: user01})),
         () => Promise.resolve(tokenReclaimInstance.didCreate.call({from: user01})),
         () => Promise.resolve(tokenReclaimInstance.didReclaim.call({from: user01})),
         () => Promise.resolve(tokenReclaimInstance.didAttack.call({from: user01})),
@@ -456,86 +455,65 @@ contract ('SmartPiggies', function(accounts) {
         () => Promise.resolve(tokenReclaimInstance.count.call({from: user01})),
         () => Promise.resolve(tokenReclaimInstance.returnCreateString.call({from: user01})),
         () => Promise.resolve(tokenReclaimInstance.returnReclaimString.call({from: user01})),
-        () => Promise.resolve(tokenReclaimInstance.balanceOf(attacker , {from: user01})),
-        () => Promise.resolve(tokenReclaimInstance.balanceOf(piggyInstance.address , {from: user01})),
-        () => Promise.resolve(piggyInstance.getDetails(tokenId, {from: user01})),
       ])
       .then(result => {
         /**
         console.log("attacker: ", attacker)
         console.log("holder #1:   ", result[4].accounts.holder.toString())
         console.log("owned: ", result[5].length)
-        console.log("owned #: ", result[5][0].toString())
         console.log("bal before: ", result[0].toString())
-        console.log("bal mid:  ", result[6].toString())
-        console.log("bal after:  ", result[17].toString())
-        console.log("create:  ", result[9].toString())
-        console.log("reclaim:  ", result[10].toString())
-        console.log("attacked:  ", result[11].toString())
-        console.log("attack return:  ", result[12].toString())
-        console.log("id:  ", result[13].toString())
-        console.log("count:  ", result[14].toString())
-        console.log("create return:  ", result[15].toString())
-        console.log("reclaim return:  ", result[16].toString())
-        console.log("holder #1:   ", result[19].accounts.holder.toString())
-        console.log("sp mid:  ", result[7].toString())
-        console.log("sp after:  ", result[18].toString())
+        console.log("bal after:  ", result[6].toString())
+        console.log("create:  ", result[8].toString())
+        console.log("reclaim:  ", result[9].toString())
+        console.log("attacked:  ", result[10].toString())
+        console.log("attack return:  ", result[11].toString())
+        console.log("id:  ", result[12].toString())
+        console.log("count:  ", result[13].toString())
+        console.log("create return:  ", result[14].toString())
+        console.log("reclaim return:  ", result[15].toString())
+        console.log("sp after:  ", result[7].toString())
         **/
         let balanceBefore = web3.utils.toBN(result[0])
-        let balanceMid = web3.utils.toBN(result[6])
-        let balanceAfter = web3.utils.toBN(result[17])
+        let balanceAfter = web3.utils.toBN(result[6])
         let currentBlock = web3.utils.toBN(result[2]).add(one) // next block will calculate expiry
 
-        // piggy is created
+        // piggy failed to create
         // addresses
-        assert.strictEqual(result[4].accounts.writer, attacker, "writer param did not return address zero");
-        assert.strictEqual(result[4].accounts.holder, attacker, "holder param did not return address zero");
+        assert.strictEqual(result[4].accounts.writer, addr00, "writer param did not return address zero");
+        assert.strictEqual(result[4].accounts.holder, addr00, "holder param did not return address zero");
         assert.strictEqual(result[4].accounts.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[4].accounts.collateralERC, attacker, "collateral param did not return address zero");
-        assert.strictEqual(result[4].accounts.dataResolver, attacker, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.collateralERC, addr00, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.dataResolver, addr00, "collateral param did not return address zero");
         // uint details
-        assert.strictEqual(result[4].uintDetails.collateral, "100", "collateral did not return correctly");
-        assert.strictEqual(result[4].uintDetails.lotSize, "1", "lotSize did not return correctly");
-        assert.strictEqual(result[4].uintDetails.strikePrice, "12300", "strikePrice did not return correctly");
-        assert.strictEqual(result[4].uintDetails.expiry, currentBlock.add(oneHundred).toString(), "expiry did not return correctly");
+        assert.strictEqual(result[4].uintDetails.collateral, "0", "collateral did not return correctly");
+        assert.strictEqual(result[4].uintDetails.lotSize, "0", "lotSize did not return correctly");
+        assert.strictEqual(result[4].uintDetails.strikePrice, "0", "strikePrice did not return correctly");
+        assert.strictEqual(result[4].uintDetails.expiry, "0", "expiry did not return correctly");
         // boolean flags
         assert.isNotTrue(result[4].flags.isRequest, "isRequest did not return false");
         assert.isNotTrue(result[4].flags.isEuro, "isEuro did not return false");
         assert.isNotTrue(result[4].flags.isPut, "isPut did not return false");
 
-        // reclaim did get called and reset piggy
-        // addresses
-        assert.strictEqual(result[19].accounts.writer, addr00, "writer param did not return address zero");
-        assert.strictEqual(result[19].accounts.holder, addr00, "holder param did not return address zero");
-        assert.strictEqual(result[19].accounts.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[19].accounts.collateralERC, addr00, "collateral param did not return address zero");
-        assert.strictEqual(result[19].accounts.dataResolver, addr00, "collateral param did not return address zero");
-        // uint details
-        assert.strictEqual(result[19].uintDetails.collateral, "0", "collateral did not return correctly");
-        assert.strictEqual(result[19].uintDetails.lotSize, "0", "lotSize did not return correctly");
-        assert.strictEqual(result[19].uintDetails.strikePrice, "0", "strikePrice did not return correctly");
-        assert.strictEqual(result[19].uintDetails.expiry, "0", "expiry did not return correctly");
-        // boolean flags
-        assert.isNotTrue(result[19].flags.isRequest, "isRequest did not return false");
-        assert.isNotTrue(result[19].flags.isEuro, "isEuro did not return false");
-        assert.isNotTrue(result[19].flags.isPut, "isPut did not return false");
-
-        // make sure the create executed on the attack contract
-        assert.isTrue(result[9], "create did not return true");
+        // create did not execute
+        assert.isNotTrue(result[8], "create did not return true");
 
         // make sure the reclaim on first piggy failed executed on the attack contract
-        assert.isTrue(result[10], "reclaim did not return true");
+        assert.isNotTrue(result[9], "reclaim did not return true");
 
         // attack fails to executed on the attack contract, trips guard
-        assert.isNotTrue(result[12], "attack did not return true");
+        assert.isNotTrue(result[11], "attack did not return true");
+
+        // count did not increment
+        assert.strictEqual(result[13].toNumber(), 0, "count did not return correclty");
 
         // Check that no funds were lost
         assert.strictEqual(balanceAfter.toString(), balanceBefore.toString(), "balance after did not match balance before");
 
-        assert.strictEqual(result[5].length, 1, "owned piggies did not return correctly");
+        // owned piggies should be zero
+        assert.strictEqual(result[5].length, 0, "owned piggies did not return correctly");
 
-        // check tokenId count should reflect two piggies being created
-        assert.strictEqual(result[13].toString(), tokenId.toString(), "tokenId did not return correctly");
+        // token id on contract is still zero
+        assert.strictEqual(result[12].toNumber(), 0, "token id did not return correctly");
       })
 
     }); // end test
