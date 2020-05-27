@@ -241,13 +241,13 @@ contract ('SmartPiggies', function(accounts) {
         */
         //check token 1
         /* addresses */
-        assert.strictEqual(result[3].addresses.writer, tokenInstance.address, "writer param did not return address zero");
-        assert.strictEqual(result[3].addresses.holder, tokenInstance.address, "holder param did not return address zero");
-        assert.strictEqual(result[3].addresses.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[3].addresses.collateralERC, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[3].addresses.dataResolver, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[3].addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result[3].addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[3].accounts.writer, tokenInstance.address, "writer param did not return address zero");
+        assert.strictEqual(result[3].accounts.holder, tokenInstance.address, "holder param did not return address zero");
+        assert.strictEqual(result[3].accounts.arbiter, addr00, "arbiter param did not return address zero");
+        assert.strictEqual(result[3].accounts.collateralERC, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[3].accounts.dataResolver, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[3].accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[3].accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         /* uint details */
         assert.strictEqual(result[3].uintDetails.collateral, "100", "collateral did not return address zero");
         assert.strictEqual(result[3].uintDetails.lotSize, "1", "lotSize did not return address zero");
@@ -276,13 +276,13 @@ contract ('SmartPiggies', function(accounts) {
 
         //check token 2
         /* addresses */
-        assert.strictEqual(result[4].addresses.writer, tokenInstance.address, "writer param did not return address zero");
-        assert.strictEqual(result[4].addresses.holder, tokenInstance.address, "holder param did not return address zero");
-        assert.strictEqual(result[4].addresses.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[4].addresses.collateralERC, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[4].addresses.dataResolver, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[4].addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result[4].addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[4].accounts.writer, tokenInstance.address, "writer param did not return address zero");
+        assert.strictEqual(result[4].accounts.holder, tokenInstance.address, "holder param did not return address zero");
+        assert.strictEqual(result[4].accounts.arbiter, addr00, "arbiter param did not return address zero");
+        assert.strictEqual(result[4].accounts.collateralERC, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.dataResolver, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[4].accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         /* uint details */
         assert.strictEqual(result[4].uintDetails.collateral, "100", "collateral did not return address zero");
         assert.strictEqual(result[4].uintDetails.lotSize, "1", "lotSize did not return address zero");
@@ -311,13 +311,13 @@ contract ('SmartPiggies', function(accounts) {
 
         //check token 3
         /* addresses */
-        assert.strictEqual(result[5].addresses.writer, tokenInstance.address, "writer param did not return address zero");
-        assert.strictEqual(result[5].addresses.holder, tokenInstance.address, "holder param did not return address zero");
-        assert.strictEqual(result[5].addresses.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[5].addresses.collateralERC, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[5].addresses.dataResolver, tokenInstance.address, "collateral param did not return address zero");
-        assert.strictEqual(result[5].addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result[5].addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[5].accounts.writer, tokenInstance.address, "writer param did not return address zero");
+        assert.strictEqual(result[5].accounts.holder, tokenInstance.address, "holder param did not return address zero");
+        assert.strictEqual(result[5].accounts.arbiter, addr00, "arbiter param did not return address zero");
+        assert.strictEqual(result[5].accounts.collateralERC, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[5].accounts.dataResolver, tokenInstance.address, "collateral param did not return address zero");
+        assert.strictEqual(result[5].accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[5].accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         /* uint details */
         assert.strictEqual(result[5].uintDetails.collateral, "100", "collateral did not return address zero");
         assert.strictEqual(result[5].uintDetails.lotSize, "1", "lotSize did not return address zero");
@@ -522,7 +522,7 @@ contract ('SmartPiggies', function(accounts) {
         /**
         console.log("return: ", result[13].toString())
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[4].addresses.holder.toString())
+        console.log("holder:   ", result[4].accounts.holder.toString())
         console.log("owned: ", result[5].length)
         console.log("bal before: ", result[0].toString())
         console.log("bal after:  ", result[7].toString())
@@ -537,13 +537,13 @@ contract ('SmartPiggies', function(accounts) {
 
         // make sure first piggy has been reclaimed and set
         /* addresses */
-        assert.strictEqual(result[4].addresses.writer, addr00, "writer param did not return address zero");
-        assert.strictEqual(result[4].addresses.holder, addr00, "holder param did not return address zero");
-        assert.strictEqual(result[4].addresses.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result[4].addresses.collateralERC, addr00, "collateral param did not return address zero");
-        assert.strictEqual(result[4].addresses.dataResolver, addr00, "collateral param did not return address zero");
-        assert.strictEqual(result[4].addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result[4].addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[4].accounts.writer, addr00, "writer param did not return address zero");
+        assert.strictEqual(result[4].accounts.holder, addr00, "holder param did not return address zero");
+        assert.strictEqual(result[4].accounts.arbiter, addr00, "arbiter param did not return address zero");
+        assert.strictEqual(result[4].accounts.collateralERC, addr00, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.dataResolver, addr00, "collateral param did not return address zero");
+        assert.strictEqual(result[4].accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result[4].accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         /* uint details */
         assert.strictEqual(result[4].uintDetails.collateral, "0", "collateral did not return address zero");
         assert.strictEqual(result[4].uintDetails.lotSize, "0", "lotSize did not return address zero");
@@ -573,7 +573,7 @@ contract ('SmartPiggies', function(accounts) {
         // second piggy
 
         // make sure the contract address is the owner of the created piggy
-        assert.strictEqual(result[5].addresses.holder.toString(), attacker, "created piggy holder address did not match");
+        assert.strictEqual(result[5].accounts.holder.toString(), attacker, "created piggy holder address did not match");
 
         // make sure the create executed on the attack contract
         assert.isTrue(result[9], "create did not return true");
@@ -626,7 +626,7 @@ contract ('SmartPiggies', function(accounts) {
       .then(result => {
         /**
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[3].addresses.holder.toString())
+        console.log("holder:   ", result[3].accounts.holder.toString())
         console.log("owned: ", result[4].length)
         console.log("bal before: ", result[0].toString())
         console.log("bal after:  ", result[5].toString())
@@ -638,7 +638,7 @@ contract ('SmartPiggies', function(accounts) {
         **/
 
         // make sure the contract address is the owner of the created piggy
-        assert.strictEqual(attacker, result[3].addresses.holder.toString(), "created piggy holder address did not match");
+        assert.strictEqual(attacker, result[3].accounts.holder.toString(), "created piggy holder address did not match");
 
         // make sure the create executed on the attack contract
         assert.isTrue(result[7], "create did not return true");
@@ -689,7 +689,7 @@ contract ('SmartPiggies', function(accounts) {
       .then(result => {
         /**
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[3].addresses.holder.toString())
+        console.log("holder:   ", result[3].accounts.holder.toString())
         console.log("owned: ", result[4].length)
         console.log("bal before: ", result[0].toString())
         console.log("bal after:  ", result[5].toString())
@@ -701,7 +701,7 @@ contract ('SmartPiggies', function(accounts) {
         **/
 
         // make sure the contract address is the owner of the created piggy
-        assert.strictEqual(attacker, result[3].addresses.holder.toString(), "created piggy holder address did not match");
+        assert.strictEqual(attacker, result[3].accounts.holder.toString(), "created piggy holder address did not match");
 
         // make sure the create executed on the attack contract
         assert.isTrue(result[7], "create did not return true");
@@ -754,7 +754,7 @@ contract ('SmartPiggies', function(accounts) {
       .then(result => {
         /**
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[5].addresses.holder.toString())
+        console.log("holder:   ", result[5].accounts.holder.toString())
         console.log("owned: ", result[6].length)
         console.log("bal before: ", result[0].toString())
         console.log("bal after:  ", result[7].toString())
@@ -770,7 +770,7 @@ contract ('SmartPiggies', function(accounts) {
         **/
 
         // make sure the contract address is the owner of the created piggy
-        assert.strictEqual(attacker, result[5].addresses.holder.toString(), "created piggy holder address did not match");
+        assert.strictEqual(attacker, result[5].accounts.holder.toString(), "created piggy holder address did not match");
 
         // make sure the create executed on the attack contract
         assert.isTrue(result[9], "create did not return true");
@@ -864,8 +864,8 @@ contract ('SmartPiggies', function(accounts) {
         /**
         console.log("user01:   ", user01)
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[1].addresses.holder.toString())
-        console.log("holder:   ", result[5].addresses.holder.toString())
+        console.log("holder:   ", result[1].accounts.holder.toString())
+        console.log("holder:   ", result[5].accounts.holder.toString())
         console.log("owned: ", result[7].length)
         console.log("bal before: ", userBalanceBefore.toString())
         console.log("bal after:  ", result[8].toString())
@@ -879,10 +879,10 @@ contract ('SmartPiggies', function(accounts) {
         **/
 
         // make sure the user is the owner of the created piggy
-        assert.strictEqual(result[1].addresses.holder.toString(), user01,"created piggy holder address did return correctly");
+        assert.strictEqual(result[1].accounts.holder.toString(), user01,"created piggy holder address did return correctly");
 
         // make sure the contract address is the owner of the created piggy
-        assert.strictEqual(result[5].addresses.holder.toString(), attacker,"created piggy holder address did not return correctly");
+        assert.strictEqual(result[5].accounts.holder.toString(), attacker,"created piggy holder address did not return correctly");
 
         // make sure attack executed on attack contract
         assert.isTrue(result[11], "attack did not return true");
@@ -981,8 +981,8 @@ contract ('SmartPiggies', function(accounts) {
         /**
         console.log("user01:   ", user01)
         console.log("attacker: ", attacker)
-        console.log("holder:   ", result[1].addresses.holder.toString())
-        console.log("holder:   ", result[7].addresses.holder.toString())
+        console.log("holder:   ", result[1].accounts.holder.toString())
+        console.log("holder:   ", result[7].accounts.holder.toString())
         console.log("owned: ", result[9].length)
         console.log("bal before: ", userBalanceBefore.toString())
         console.log("bal after:  ", result[18].toString())
@@ -996,16 +996,16 @@ contract ('SmartPiggies', function(accounts) {
         **/
 
         // make sure RFP has no writer
-        assert.strictEqual(result[1].addresses.writer.toString(), addr00, "created piggy holder address did return correctly");
+        assert.strictEqual(result[1].accounts.writer.toString(), addr00, "created piggy holder address did return correctly");
 
         // make sure the user is the holder of the RFP
-        assert.strictEqual(result[1].addresses.holder.toString(), user01, "created piggy holder address did return correctly");
+        assert.strictEqual(result[1].accounts.holder.toString(), user01, "created piggy holder address did return correctly");
 
         // make sure the user is the owner of the created piggy
-        assert.strictEqual(result[7].addresses.holder.toString(), user01,"created piggy holder address did not return correctly");
+        assert.strictEqual(result[7].accounts.holder.toString(), user01,"created piggy holder address did not return correctly");
 
         // make sure contract address is the writer of the created piggy
-        assert.strictEqual(result[7].addresses.writer.toString(), attacker,"created piggy holder address did not return correctly");
+        assert.strictEqual(result[7].accounts.writer.toString(), attacker,"created piggy holder address did not return correctly");
 
         // make sure attack executed on attack contract
         assert.isTrue(result[12], "attack did not return true");

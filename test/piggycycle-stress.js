@@ -129,9 +129,9 @@ contract ('SmartPiggies', function(accounts) {
         .then(result => {
           assert.isTrue(result.receipt.status, "create did not return true")
           assert.strictEqual(result.logs[0].event, "CreatePiggy", "Event log from create didn't return correct event name")
-          assert.strictEqual(result.logs[0].args.addresses[0], user01, "Event log from create didn't return correct sender")
-          assert.strictEqual(result.logs[0].args.addresses[1], collateralERC, "Event log from create didn't return correct sender")
-          assert.strictEqual(result.logs[0].args.addresses[2], dataResolver, "Event log from create didn't return correct resolver")
+          assert.strictEqual(result.logs[0].args.accounts[0], user01, "Event log from create didn't return correct sender")
+          assert.strictEqual(result.logs[0].args.accounts[1], collateralERC, "Event log from create didn't return correct sender")
+          assert.strictEqual(result.logs[0].args.accounts[2], dataResolver, "Event log from create didn't return correct resolver")
           assert.strictEqual(result.logs[0].args.ints[0].toString(), "1", "Event log from create didn't return correct tokenId")
           assert.strictEqual(result.logs[0].args.ints[1].toString(), collateral.toString(), "Event log from create didn't return correct collateral")
           assert.strictEqual(result.logs[0].args.ints[2].toString(), lotSize.toString(), "Event log from create didn't return correct lot size")

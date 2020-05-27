@@ -574,7 +574,7 @@ contract SmartPiggiesReentry is UsingConstants {
     require(_amount < piggies[_tokenId].uintDetails.collateral, "amount must be less than collateral");
     require(!piggies[_tokenId].flags.isRequest, "cannot be an RFP");
     require(piggies[_tokenId].uintDetails.collateral > 0, "collateral must be greater than zero");
-    require(piggies[_tokenId].addresses.holder == msg.sender, "only holder can split");
+    require(piggies[_tokenId].accounts.holder == msg.sender, "only holder can split");
     require(block.number < piggies[_tokenId].uintDetails.expiry, "cannot split expired token");
     require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
@@ -586,9 +586,9 @@ contract SmartPiggiesReentry is UsingConstants {
 
     require(
       _constructPiggy(
-        piggies[_tokenId].addresses.collateralERC,
-        piggies[_tokenId].addresses.dataResolver,
-        piggies[_tokenId].addresses.arbiter,
+        piggies[_tokenId].accounts.collateralERC,
+        piggies[_tokenId].accounts.dataResolver,
+        piggies[_tokenId].accounts.arbiter,
         piggies[_tokenId].uintDetails.collateral.sub(_amount), // piggy with collateral less the amount
         piggies[_tokenId].uintDetails.lotSize,
         piggies[_tokenId].uintDetails.strikePrice,
@@ -604,9 +604,9 @@ contract SmartPiggiesReentry is UsingConstants {
 
     require(
       _constructPiggy(
-        piggies[_tokenId].addresses.collateralERC,
-        piggies[_tokenId].addresses.dataResolver,
-        piggies[_tokenId].addresses.arbiter,
+        piggies[_tokenId].accounts.collateralERC,
+        piggies[_tokenId].accounts.dataResolver,
+        piggies[_tokenId].accounts.arbiter,
         _amount,
         piggies[_tokenId].uintDetails.lotSize,
         piggies[_tokenId].uintDetails.strikePrice,
@@ -629,7 +629,7 @@ contract SmartPiggiesReentry is UsingConstants {
   function transferFrom(address _from, address _to, uint256 _tokenId)
     public
   {
-    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be holder");
+    require(msg.sender == piggies[_tokenId].accounts.holder, "sender must be holder");
     _internalTransfer(_from, _to, _tokenId);
   }
 
@@ -667,18 +667,18 @@ contract SmartPiggiesReentry is UsingConstants {
     nonReentrant
     returns (bool)
   {
-    require(msg.sender == piggies[_tokenId].addresses.holder, "sender must be holder");
+    require(msg.sender == piggies[_tokenId].accounts.holder, "sender must be holder");
     require(!auctions[_tokenId].flags[AUCTIONACTIVE], "auction active");
 
     emit ReclaimAndBurn(msg.sender, _tokenId, piggies[_tokenId].flags.isRequest);
     // remove id from index mapping
-    _removeTokenFromOwnedPiggies(piggies[_tokenId].addresses.holder, _tokenId);
+    _removeTokenFromOwnedPiggies(piggies[_tokenId].accounts.holder, _tokenId);
 
     if (!piggies[_tokenId].flags.isRequest) {
-      require(msg.sender == piggies[_tokenId].addresses.writer, "sender must own collateral");
+      require(msg.sender == piggies[_tokenId].accounts.writer, "sender must own collateral");
 
       // keep collateralERC address
-      address collateralERC = piggies[_tokenId].addresses.collateralERC;
+      address collateralERC = piggies[_tokenId].accounts.collateralERC;
       // keep collateral
       uint256 collateral = piggies[_tokenId].uintDetails.collateral;
       // burn the token (zero out storage fields)
@@ -715,7 +715,7 @@ contract SmartPiggiesReentry is UsingConstants {
     returns (bool)
   {
     uint256 _auctionExpiry = block.number.add(_auctionLength);
-    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be holder");
+    require(piggies[_tokenId].accounts.holder == msg.sender, "sender must be holder");
     require(piggies[_tokenId].uintDetails.expiry > block.number, "piggy expired");
     require(piggies[_tokenId].uintDetails.expiry > _auctionExpiry, "auction cannot expire after token expiry");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
@@ -733,7 +733,7 @@ contract SmartPiggiesReentry is UsingConstants {
     if (piggies[_tokenId].flags.isRequest) {
       // *** warning untrusted function call ***
       (bool success, bytes memory result) = attemptPaymentTransfer(
-        piggies[_tokenId].addresses.collateralERC,
+        piggies[_tokenId].accounts.collateralERC,
         msg.sender,
         address(this),
         _reservePrice  // this should be the max the requestor is willing to pay in a reverse dutch auction
@@ -760,7 +760,7 @@ contract SmartPiggiesReentry is UsingConstants {
     nonReentrant
     returns (bool)
   {
-    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be holder");
+    require(piggies[_tokenId].accounts.holder == msg.sender, "sender must be holder");
     require(auctions[_tokenId].flags[AUCTIONACTIVE], "auction not active");
     require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction is being satisfied");  // this should be added to other functions as well
 
@@ -770,7 +770,7 @@ contract SmartPiggiesReentry is UsingConstants {
 
       // *** warning untrusted function call ***
       // refund the _reservePrice premium
-      (bool success, bytes memory result) = address(piggies[_tokenId].addresses.collateralERC).call(
+      (bool success, bytes memory result) = address(piggies[_tokenId].accounts.collateralERC).call(
         abi.encodeWithSignature(
           "transfer(address,uint256)",
           msg.sender,
@@ -793,7 +793,7 @@ contract SmartPiggiesReentry is UsingConstants {
     returns (bool)
   {
     require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction is being satisfied");
-    require(piggies[_tokenId].addresses.holder != msg.sender, "cannot satisfy auction; use endAuction");
+    require(piggies[_tokenId].accounts.holder != msg.sender, "cannot satisfy auction; use endAuction");
     require(auctions[_tokenId].flags[AUCTIONACTIVE], "auction not active");
     // if auction is "active" according to state but has expired, change state
     if (auctions[_tokenId].details[EXPIRYBLOCK] < block.number) {
@@ -817,7 +817,7 @@ contract SmartPiggiesReentry is UsingConstants {
       // *** warning untrusted function call ***
       // msg.sender needs to delegate reqCollateral
       (success, result) = attemptPaymentTransfer(
-        piggies[_tokenId].addresses.collateralERC,
+        piggies[_tokenId].accounts.collateralERC,
         msg.sender,
         address(this),
         piggies[_tokenId].uintDetails.reqCollateral
@@ -839,7 +839,7 @@ contract SmartPiggiesReentry is UsingConstants {
       }
       // *** warning untrusted function call ***
       // current holder pays premium (via amount already delegated to this contract in startAuction)
-      (success, result) = address(piggies[_tokenId].addresses.collateralERC).call(
+      (success, result) = address(piggies[_tokenId].accounts.collateralERC).call(
         abi.encodeWithSignature(
           "transfer(address,uint256)",
           msg.sender,
@@ -852,10 +852,10 @@ contract SmartPiggiesReentry is UsingConstants {
       // current holder receives any change due
       if (_change > 0) {
         // *** warning untrusted function call ***
-        (success, result) = address(piggies[_tokenId].addresses.collateralERC).call(
+        (success, result) = address(piggies[_tokenId].accounts.collateralERC).call(
           abi.encodeWithSignature(
             "transfer(address,uint256)",
-            piggies[_tokenId].addresses.holder,
+            piggies[_tokenId].accounts.holder,
             _change
           )
         );
@@ -865,7 +865,7 @@ contract SmartPiggiesReentry is UsingConstants {
       // isRequest becomes false
       piggies[_tokenId].flags.isRequest = false;
       // msg.sender becomes writer
-      piggies[_tokenId].addresses.writer = msg.sender;
+      piggies[_tokenId].accounts.writer = msg.sender;
 
       emit SatisfyAuction(
         msg.sender,
@@ -884,9 +884,9 @@ contract SmartPiggiesReentry is UsingConstants {
       // *** warning untrusted function call ***
       // msg.sender pays (adjusted) premium
       (success, result) = attemptPaymentTransfer(
-        piggies[_tokenId].addresses.collateralERC,
+        piggies[_tokenId].accounts.collateralERC,
         msg.sender,
-        piggies[_tokenId].addresses.holder,
+        piggies[_tokenId].accounts.holder,
         _adjPremium
       );
       txCheck = abi.decode(result, (bytes32));
@@ -895,7 +895,7 @@ contract SmartPiggiesReentry is UsingConstants {
         return false;
       }
       // msg.sender becomes holder
-      _internalTransfer(piggies[_tokenId].addresses.holder, msg.sender, _tokenId);
+      _internalTransfer(piggies[_tokenId].accounts.holder, msg.sender, _tokenId);
 
       emit SatisfyAuction(
         msg.sender,
@@ -949,10 +949,10 @@ contract SmartPiggiesReentry is UsingConstants {
     // check if American and less than expiry, only holder can call
     if (!piggies[_tokenId].flags.isEuro && (block.number < piggies[_tokenId].uintDetails.expiry))
     {
-      require(msg.sender == piggies[_tokenId].addresses.holder, "only holder can settle American before expiry");
+      require(msg.sender == piggies[_tokenId].accounts.holder, "only holder can settle American before expiry");
     }
 
-    address dataResolver = piggies[_tokenId].addresses.dataResolver;
+    address dataResolver = piggies[_tokenId].accounts.dataResolver;
     uint8 request = uint8 (RequestType.Settlement);
     bytes memory payload = abi.encodeWithSignature(
       "fetchData(address,uint256,uint256,uint8)",
@@ -985,13 +985,13 @@ contract SmartPiggiesReentry is UsingConstants {
   {
     require(msg.sender != address(0));
     // MUST restrict a call to only the resolver address
-    require(msg.sender == piggies[_tokenId].addresses.dataResolver, "resolver callback address failed match");
+    require(msg.sender == piggies[_tokenId].accounts.dataResolver, "resolver callback address failed match");
     require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
     piggies[_tokenId].uintDetails.settlementPrice = _price;
     piggies[_tokenId].flags.hasBeenCleared = true;
 
     // if abitration is set, lock piggy for cooldown period
-    if (piggies[_tokenId].addresses.arbiter != address(0)) {
+    if (piggies[_tokenId].accounts.arbiter != address(0)) {
       piggies[_tokenId].uintDetails.arbitrationLock = block.number.add(cooldown);
     }
 
@@ -1070,7 +1070,7 @@ contract SmartPiggiesReentry is UsingConstants {
     returns (bool)
   {
     require(msg.sender != address(0));
-    require(msg.sender == piggies[_tokenId].addresses.arbiter, "sender must be the arbiter");
+    require(msg.sender == piggies[_tokenId].accounts.arbiter, "sender must be the arbiter");
     piggies[_tokenId].flags.arbiterHasConfirmed = true;
 
     emit ArbiterConfirmed(msg.sender, _tokenId);
@@ -1193,11 +1193,11 @@ contract SmartPiggiesReentry is UsingConstants {
   function _internalTransfer(address _from, address _to, uint256 _tokenId)
     internal
   {
-    require(_from == piggies[_tokenId].addresses.holder, "from must be holder");
+    require(_from == piggies[_tokenId].accounts.holder, "from must be holder");
     require(_to != address(0), "recipient cannot be zero");
     _removeTokenFromOwnedPiggies(_from, _tokenId);
     _addTokenToOwnedPiggies(_to, _tokenId);
-    piggies[_tokenId].addresses.holder = _to;
+    piggies[_tokenId].accounts.holder = _to;
     emit TransferPiggy(_from, _to, _tokenId);
   }
 
@@ -1314,6 +1314,8 @@ contract SmartPiggiesReentry is UsingConstants {
   function _resetPiggy(uint256 _tokenId)
     private
   {
+    delete piggies[_tokenId];
+    /**
     piggies[_tokenId].addresses.writer = address(0);
     piggies[_tokenId].addresses.holder = address(0);
     piggies[_tokenId].addresses.arbiter = address(0);
@@ -1344,5 +1346,6 @@ contract SmartPiggiesReentry is UsingConstants {
     piggies[_tokenId].flags.arbiterHasProposedPrice = false;
     piggies[_tokenId].flags.arbiterHasConfirmed = false;
     piggies[_tokenId].flags.arbitrationAgreement = false;
+    **/
   }
 }

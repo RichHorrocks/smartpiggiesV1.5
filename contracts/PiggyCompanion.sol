@@ -194,7 +194,7 @@ contract PiggyCompanion is UsingConstants {
   mapping (uint256 => Piggy) private piggies;
   mapping (uint256 => DetailAuction) private auctions;
 
-  struct DetailAddresses {
+  struct DetailAccounts {
     address writer;
     address holder;
     address collateralERC;
@@ -241,13 +241,13 @@ contract PiggyCompanion is UsingConstants {
   }
 
   struct Piggy {
-    DetailAddresses addresses; // address details
+    DetailAccounts accounts; // address details
     DetailUints uintDetails; // number details
     BoolFlags flags; // parameter switches
   }
 
   event CreatePiggy(
-    address[] addresses,
+    address[] accounts,
     uint256[] ints,
     bool[] bools
   );
@@ -317,18 +317,18 @@ contract PiggyCompanion is UsingConstants {
     whenNotFrozen
     returns (bool)
   {
-    require(piggies[_tokenId].addresses.holder == msg.sender, "sender must be the holder");
+    require(piggies[_tokenId].accounts.holder == msg.sender, "sender must be the holder");
     require(piggies[_tokenId].flags.isRequest, "you can only update an RFP");
     require(!auctions[_tokenId].flags[SATISFYINPROGRESS], "auction in process of being satisfied");
     uint256 expiryBlock;
     if (_collateralERC != address(0)) {
-      piggies[_tokenId].addresses.collateralERC = _collateralERC;
+      piggies[_tokenId].accounts.collateralERC = _collateralERC;
     }
     if (_dataResolver != address(0)) {
-      piggies[_tokenId].addresses.dataResolver = _dataResolver;
+      piggies[_tokenId].accounts.dataResolver = _dataResolver;
     }
     if (_arbiter != address(0)) {
-      piggies[_tokenId].addresses.arbiter = _arbiter;
+      piggies[_tokenId].accounts.arbiter = _arbiter;
     }
     if (_reqCollateral != 0) {
       piggies[_tokenId].uintDetails.reqCollateral = _reqCollateral;
@@ -380,7 +380,7 @@ contract PiggyCompanion is UsingConstants {
     require(piggies[_tokenId].flags.hasBeenCleared, "piggy is not cleared");
 
     // check if arbitratin is set, cooldown has passed
-    if (piggies[_tokenId].addresses.arbiter != address(0)) {
+    if (piggies[_tokenId].accounts.arbiter != address(0)) {
      require(piggies[_tokenId].uintDetails.arbitrationLock <= block.number, "arbiter set, locked for cooldown period");
     }
 
@@ -392,9 +392,9 @@ contract PiggyCompanion is UsingConstants {
     payout = _calculateLongPayout(_tokenId);
 
     // set the balances of the two counterparties based on the payout
-    address _writer = piggies[_tokenId].addresses.writer;
-    address _holder = piggies[_tokenId].addresses.holder;
-    address _collateralERC = piggies[_tokenId].addresses.collateralERC;
+    address _writer = piggies[_tokenId].accounts.writer;
+    address _holder = piggies[_tokenId].accounts.holder;
+    address _collateralERC = piggies[_tokenId].accounts.collateralERC;
 
     uint256 collateral = piggies[_tokenId].uintDetails.collateral;
     if (payout > collateral) {
@@ -425,20 +425,20 @@ contract PiggyCompanion is UsingConstants {
   {
     require(_newArbiter != address(0), "arbiter address cannot be zero");
     require(!auctions[_tokenId].flags[AUCTIONACTIVE], "token cannot be on auction");
-    address _holder = piggies[_tokenId].addresses.holder;
-    address _writer = piggies[_tokenId].addresses.writer;
+    address _holder = piggies[_tokenId].accounts.holder;
+    address _writer = piggies[_tokenId].accounts.writer;
     require(msg.sender == _holder || msg.sender == _writer, "only writer or holder can propose a new arbiter");
     if (msg.sender == _holder) {
       piggies[_tokenId].flags.holderHasProposedNewArbiter = true;
-      piggies[_tokenId].addresses.holderProposedNewArbiter = _newArbiter;
+      piggies[_tokenId].accounts.holderProposedNewArbiter = _newArbiter;
     }
     if (msg.sender == _writer) {
       piggies[_tokenId].flags.writerHasProposedNewArbiter = true;
-      piggies[_tokenId].addresses.writerProposedNewArbiter = _newArbiter;
+      piggies[_tokenId].accounts.writerProposedNewArbiter = _newArbiter;
     }
     if (piggies[_tokenId].flags.holderHasProposedNewArbiter && piggies[_tokenId].flags.writerHasProposedNewArbiter) {
-      if (piggies[_tokenId].addresses.holderProposedNewArbiter == piggies[_tokenId].addresses.writerProposedNewArbiter) {
-        piggies[_tokenId].addresses.arbiter = _newArbiter;
+      if (piggies[_tokenId].accounts.holderProposedNewArbiter == piggies[_tokenId].accounts.writerProposedNewArbiter) {
+        piggies[_tokenId].accounts.arbiter = _newArbiter;
         emit ArbiterSet(msg.sender, _newArbiter, _tokenId);
         return true;
       } else {
@@ -465,9 +465,9 @@ contract PiggyCompanion is UsingConstants {
     }
 
     // set internal address references for convenience
-    address _holder = piggies[_tokenId].addresses.holder;
-    address _writer = piggies[_tokenId].addresses.writer;
-    address _arbiter = piggies[_tokenId].addresses.arbiter;
+    address _holder = piggies[_tokenId].accounts.holder;
+    address _writer = piggies[_tokenId].accounts.writer;
+    address _arbiter = piggies[_tokenId].accounts.arbiter;
 
     // check which party the sender is (of the 3 valid ones, else fail)
     require(msg.sender == _holder || msg.sender == _writer || msg.sender == _arbiter, "sender must be holder, writer, or arbiter");
@@ -555,10 +555,10 @@ contract PiggyCompanion is UsingConstants {
 
     // write the values to storage, including _isRequest flag
     Piggy storage p = piggies[tokenId];
-    p.addresses.holder = msg.sender;
-    p.addresses.collateralERC = _collateralERC;
-    p.addresses.dataResolver = _dataResolver;
-    p.addresses.arbiter = _arbiter;
+    p.accounts.holder = msg.sender;
+    p.accounts.collateralERC = _collateralERC;
+    p.accounts.dataResolver = _dataResolver;
+    p.accounts.arbiter = _arbiter;
     p.uintDetails.lotSize = _lotSize;
     p.uintDetails.strikePrice = _strikePrice;
     p.flags.isEuro = _isEuro;
@@ -574,19 +574,19 @@ contract PiggyCompanion is UsingConstants {
     } else if (_isSplit) {
       require(_splitTokenId != 0, "tokenId cannot be zero");
       require(!piggies[_splitTokenId].flags.isRequest, "token cannot be an RFP");
-      require(piggies[_splitTokenId].addresses.holder == msg.sender, "only the holder can split");
+      require(piggies[_splitTokenId].accounts.holder == msg.sender, "only the holder can split");
       require(block.number < piggies[_splitTokenId].uintDetails.expiry, "cannot split expired token");
       require(!auctions[_splitTokenId].flags[AUCTIONACTIVE], "cannot split token on auction");
       require(!piggies[_splitTokenId].flags.hasBeenCleared, "cannot split cleared token");
       tokenExpiry = piggies[_splitTokenId].uintDetails.expiry;
-      p.addresses.writer = piggies[_splitTokenId].addresses.writer;
+      p.accounts.writer = piggies[_splitTokenId].accounts.writer;
       p.uintDetails.collateral = _collateral;
       p.uintDetails.collateralDecimals = piggies[_splitTokenId].uintDetails.collateralDecimals;
       p.uintDetails.expiry = tokenExpiry;
     } else {
       require(!_isSplit, "split cannot be true when creating a piggy");
       tokenExpiry = _expiry.add(block.number);
-      p.addresses.writer = msg.sender;
+      p.accounts.writer = msg.sender;
       p.uintDetails.collateral = _collateral;
       p.uintDetails.collateralDecimals = _getERC20Decimals(_collateralERC);
       p.uintDetails.expiry = tokenExpiry;
@@ -685,35 +685,6 @@ contract PiggyCompanion is UsingConstants {
   function _resetPiggy(uint256 _tokenId)
     private
   {
-    piggies[_tokenId].addresses.writer = address(0);
-    piggies[_tokenId].addresses.holder = address(0);
-    piggies[_tokenId].addresses.arbiter = address(0);
-    piggies[_tokenId].addresses.collateralERC = address(0);
-    piggies[_tokenId].addresses.dataResolver = address(0);
-    piggies[_tokenId].addresses.writerProposedNewArbiter = address(0);
-    piggies[_tokenId].addresses.holderProposedNewArbiter = address(0);
-    piggies[_tokenId].uintDetails.collateral = 0;
-    piggies[_tokenId].uintDetails.lotSize = 0;
-    piggies[_tokenId].uintDetails.strikePrice = 0;
-    piggies[_tokenId].uintDetails.expiry = 0;
-    piggies[_tokenId].uintDetails.settlementPrice = 0;
-    piggies[_tokenId].uintDetails.reqCollateral = 0;
-    piggies[_tokenId].uintDetails.collateralDecimals = 0;
-    piggies[_tokenId].uintDetails.arbitrationLock = 0;
-    piggies[_tokenId].uintDetails.writerProposedPrice = 0;
-    piggies[_tokenId].uintDetails.holderProposedPrice = 0;
-    piggies[_tokenId].uintDetails.arbiterProposedPrice = 0;
-    piggies[_tokenId].uintDetails.rfpNonce = 0;
-    piggies[_tokenId].flags.isRequest = false;
-    piggies[_tokenId].flags.isEuro = false;
-    piggies[_tokenId].flags.isPut = false;
-    piggies[_tokenId].flags.hasBeenCleared = false;
-    piggies[_tokenId].flags.writerHasProposedNewArbiter = false;
-    piggies[_tokenId].flags.holderHasProposedNewArbiter = false;
-    piggies[_tokenId].flags.writerHasProposedPrice = false;
-    piggies[_tokenId].flags.holderHasProposedPrice = false;
-    piggies[_tokenId].flags.arbiterHasProposedPrice = false;
-    piggies[_tokenId].flags.arbiterHasConfirmed = false;
-    piggies[_tokenId].flags.arbitrationAgreement = false;
+    delete piggies[_tokenId];
   }
 }

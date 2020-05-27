@@ -158,7 +158,7 @@ contract ('SmartPiggies', function(accounts) {
         () => Promise.resolve(piggyInstance.getDetails(tokenId, {from: user01})), //[5]
       ])
       .then(result => {
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[2][0].writer, addr00, "Details should have correct writer address.")
         assert.strictEqual(result[2][0].holder, owner, "Details should have correct holder address.")
         assert.strictEqual(result[2][0].collateralERC, collateralERC, "Details should have correct collateralERC address.")
@@ -196,7 +196,7 @@ contract ('SmartPiggies', function(accounts) {
         assert.isNotTrue(result[2][2].arbiterHasConfirmed, "Details should have returned false for arbiterHasConfirmed.")
 
         //check details after updateRFP
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[5][0].writer, addr00, "Details should have correct writer address.")
         assert.strictEqual(result[5][0].holder, owner, "Details should have correct holder address.")
         assert.strictEqual(result[5][0].collateralERC, collateralERC, "Details should have correct collateralERC address.")
@@ -434,7 +434,7 @@ contract ('SmartPiggies', function(accounts) {
         assert.strictEqual(result[11].logs[0].args.tokenId.toString(), tokenId.toString(), "updateRFP event did not return tokenId param correctly")
         assert.strictEqual(result[11].logs[0].args.rfpNonce.toString(), one.add(one).add(one).add(one).add(one).toString(), "updateRFP event did not return rfpNonce param correctly")
 
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[13][0].writer, addr00, "Details should have correct writer address.")
         assert.strictEqual(result[13][0].holder, owner, "Details should have correct holder address.")
         assert.strictEqual(result[13][0].collateralERC, collateralERC, "Details should have correct collateralERC address.")

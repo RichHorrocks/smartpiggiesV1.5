@@ -362,13 +362,13 @@ contract ('SmartPiggies', function(accounts) {
         ** result.flags = result[2]
         */
         /* addresses */
-        assert.strictEqual(result.addresses.writer, addr00, "writer param did not return address zero");
-        assert.strictEqual(result.addresses.holder, addr00, "holder param did not return address zero");
-        assert.strictEqual(result.addresses.arbiter, addr00, "arbiter param did not return address zero");
-        assert.strictEqual(result.addresses.collateralERC, addr00, "collateral param did not return address zero");
-        assert.strictEqual(result.addresses.dataResolver, addr00, "collateral param did not return address zero");
-        assert.strictEqual(result.addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result.addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.writer, addr00, "writer param did not return address zero");
+        assert.strictEqual(result.accounts.holder, addr00, "holder param did not return address zero");
+        assert.strictEqual(result.accounts.arbiter, addr00, "arbiter param did not return address zero");
+        assert.strictEqual(result.accounts.collateralERC, addr00, "collateral param did not return address zero");
+        assert.strictEqual(result.accounts.dataResolver, addr00, "collateral param did not return address zero");
+        assert.strictEqual(result.accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         /* uint details */
         assert.strictEqual(result.uintDetails.collateral, zeroParam.toString(), "collateral did not return address zero");
         assert.strictEqual(result.uintDetails.lotSize, zeroParam.toString(), "lotSize did not return address zero");
@@ -420,7 +420,7 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getDetails(tokenId, {from: owner})
       })
       .then(result => {
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[0].writer, addr00, "Details should have correct writer address.");
         assert.strictEqual(result[0].holder, addr00, "Details should have correct holder address.");
         assert.strictEqual(result[0].collateralERC, addr00, "Details should have correct collateralERC address.");
@@ -506,9 +506,9 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         /* check that struct is zero'ed out */
-        assert.strictEqual(result.addresses.arbiter, addr00, "arbiter struct param did not return address zero");
-        assert.strictEqual(result.addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result.addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.arbiter, addr00, "arbiter struct param did not return address zero");
+        assert.strictEqual(result.accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         assert.strictEqual(result.uintDetails.arbiterProposedPrice, zeroParam.toString(), "arbiterProposedPrice did not return address zero");
         assert.strictEqual(result.uintDetails.writerProposedPrice, zeroParam.toString(), "writerProposedPrice did not return address zero");
         assert.strictEqual(result.uintDetails.holderProposedPrice, zeroParam.toString(), "holderProposedPrice did not return address zero");
@@ -544,7 +544,7 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getDetails(tokenId, {from: owner})
       })
       .then(result => {
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[0].writer, addr00, "Details should have correct writer address.");
         assert.strictEqual(result[0].holder, addr00, "Details should have correct holder address.");
         assert.strictEqual(result[0].collateralERC, addr00, "Details should have correct collateralERC address.");
@@ -722,9 +722,9 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         /* check that struct is zero'ed out */
-        assert.strictEqual(result.addresses.arbiter, addr00, "arbiter struct param did not return address zero");
-        assert.strictEqual(result.addresses.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
-        assert.strictEqual(result.addresses.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.arbiter, addr00, "arbiter struct param did not return address zero");
+        assert.strictEqual(result.accounts.writerProposedNewArbiter, addr00, "writerProposedNewArbiter did not return address zero");
+        assert.strictEqual(result.accounts.holderProposedNewArbiter, addr00, "holderProposedNewArbiter did not return address zero");
         assert.strictEqual(result.uintDetails.arbiterProposedPrice, zeroParam.toString(), "arbiterProposedPrice did not return address zero");
         assert.strictEqual(result.uintDetails.writerProposedPrice, zeroParam.toString(), "writerProposedPrice did not return address zero");
         assert.strictEqual(result.uintDetails.holderProposedPrice, zeroParam.toString(), "holderProposedPrice did not return address zero");
@@ -760,7 +760,7 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getDetails(tokenId, {from: owner})
       })
       .then(result => {
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[0].writer, addr00, "Details should have correct writer address.");
         assert.strictEqual(result[0].holder, addr00, "Details should have correct holder address.");
         assert.strictEqual(result[0].collateralERC, addr00, "Details should have correct collateralERC address.");
@@ -864,7 +864,7 @@ contract ('SmartPiggies', function(accounts) {
         return piggyInstance.getDetails(tokenId, {from: owner})
       })
       .then(result => {
-        //check DetailAddresses
+        //check DetailAccounts
         assert.strictEqual(result[0].writer, addr00, "Details should have correct writer address.");
         assert.strictEqual(result[0].holder, addr00, "Details should have correct holder address.");
         assert.strictEqual(result[0].collateralERC, addr00, "Details should have correct collateralERC address.");
