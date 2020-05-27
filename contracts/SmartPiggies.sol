@@ -1,4 +1,4 @@
-accounts/**
+/**
 SmartPiggies is an open source standard for
 a free peer to peer global derivatives market
 

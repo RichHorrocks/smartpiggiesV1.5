@@ -261,7 +261,7 @@ contract SmartPiggiesReentry is UsingConstants {
    */
   uint256 private _guardCounter;
 
-  struct DetailAddresses {
+  struct DetailAccounts {
     address writer;
     address holder;
     address collateralERC;
@@ -326,7 +326,7 @@ contract SmartPiggiesReentry is UsingConstants {
   }
 
   struct Piggy {
-    DetailAddresses addresses; // address details
+    DetailAccounts accounts; // address details
     DetailUints uintDetails; // number details
     BoolFlags flags; // parameter switches
   }
