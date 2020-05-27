@@ -1295,6 +1295,8 @@ contract SmartPiggies is UsingConstants {
   function _resetPiggy(uint256 _tokenId)
     private
   {
+    delete piggies[_tokenId];
+    /**
     piggies[_tokenId].addresses.writer = address(0);
     piggies[_tokenId].addresses.holder = address(0);
     piggies[_tokenId].addresses.arbiter = address(0);
@@ -1325,5 +1327,6 @@ contract SmartPiggies is UsingConstants {
     piggies[_tokenId].flags.arbiterHasProposedPrice = false;
     piggies[_tokenId].flags.arbiterHasConfirmed = false;
     piggies[_tokenId].flags.arbitrationAgreement = false;
+    **/
   }
 }

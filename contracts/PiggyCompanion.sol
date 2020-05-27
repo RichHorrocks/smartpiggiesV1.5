@@ -642,6 +642,7 @@ contract PiggyCompanion is UsingConstants {
 
   function _calculateLongPayout(uint256 _tokenId)
     internal
+    view
     returns (uint256 _payout)
   {
     bool _isPut = piggies[_tokenId].flags.isPut;

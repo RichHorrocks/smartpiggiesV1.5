@@ -82,40 +82,9 @@ contract ('SmartPiggies', function(accounts) {
     });
   });
 
-  describe("Testing ownership functionality", function() {
-
-    it("Should have correct owner", function() {
-      return piggyInstance.owner.call({from: owner})
-      .then(result => {
-        assert.strictEqual(result, owner, "owner did not return correctly");
-      });
-    }); //end test block
-
-    it("Should change owner", function() {
-      return piggyInstance.changeOwner(user01, {from: owner})
-      .then(result => {
-        assert.isTrue(result.receipt.status, "changeOwner function did not return successfully");
-        assert.strictEqual(result.logs[0].event, "ChangedOwner", "Event logs did not return correct event name");
-        assert.strictEqual(result.logs[0].args.from, owner, "Event log from changeOwner didn't return correct sender");
-        assert.strictEqual(result.logs[0].args.newOwner, user01, "Event log from changeOwner didn't return correct sender");
-        return piggyInstance.owner.call({from: owner});
-      })
-      .then(result => {
-        assert.strictEqual(result, user01, "new owner did not return correctly");
-      });
-    }); // end test block
-
-    it("Should fail to change owner if sender is not owner", function() {
-
-      /* transaction should revert if sender is not owner */
-      return expectedExceptionPromise(
-        () => piggyInstance.changeOwner(
-          user01,
-          {from: user01, gas: 8000000 }),
-          3000000);
-
-    }); //end test block
-
+  describe("No ownership functionality", function() {
+    it("Does not have owner functionality", function() {
+    });
   }); //end describe block
 
   describe("Testing admin controls", function() {
@@ -127,14 +96,11 @@ contract ('SmartPiggies', function(accounts) {
       });
     }); //end test block
 
-    if("Should be possible to add an admin", function() {
+    it("Should be possible to add an admin", function() {
       /* owner or adming should be able to add administrators */
       return piggyInstance.addAdministrator(user01, {from: owner})
       .then(result => {
         assert.isTrue(result.receipt.status, "add did not return successfully");
-        assert.strictEqual(result.logs[0].event, "AddedAdmin", "Event logs did not return correct event name");
-        assert.strictEqual(result.logs[0].args.from, owner, "Event did not return correct sender");
-        assert.strictEqual(result.logs[0].args.newAdmin, user01, "Event did not return correct newAdmin param");
 
         return piggyInstance.isAdministrator(user01, {from: user01});
       })
@@ -146,9 +112,6 @@ contract ('SmartPiggies', function(accounts) {
       })
       .then(result => {
         assert.isTrue(result.receipt.status, "add did not return successfully");
-        assert.strictEqual(result.logs[0].event, "AddedAdmin", "Event logs did not return correct event name");
-        assert.strictEqual(result.logs[0].args.from, user01, "Event did not return correct sender");
-        assert.strictEqual(result.logs[0].args.newAdmin, user02, "Event did not return correct newAdmin param");
 
         return piggyInstance.isAdministrator(user02, {from: user02});
       })
@@ -167,33 +130,12 @@ contract ('SmartPiggies', function(accounts) {
         () => Promise.resolve(piggyInstance.isAdministrator(owner, {from: owner})), // [5]
         () => Promise.resolve(piggyInstance.isAdministrator(user01, {from: owner})), // [6]
         () => Promise.resolve(piggyInstance.isAdministrator(user02, {from: owner})), // [7]
-        () => Promise.resolve(piggyInstance.addAdministrator(owner, {from: owner})), // [8]
-        () => Promise.resolve(piggyInstance.isAdministrator(owner, {from: owner})) // 9
       ])
       .then(result => {
-
-        /* check delete of user02 by user01 */
-        assert.strictEqual(result[2].logs[0].event, "DeletedAdmin", "delete event did not return correct name");
-        assert.strictEqual(result[2].logs[0].args.from, user01, "delete event did not return correct sender");
-        assert.strictEqual(result[2].logs[0].args.oldAdmin, user02, "delete event did not return correct oldAdmin param");
-
-        /* check delete of user01 by owner */
-        assert.strictEqual(result[3].logs[0].event, "DeletedAdmin", "delete event did not return correct name");
-        assert.strictEqual(result[3].logs[0].args.from, owner, "delete event did not return correct sender");
-        assert.strictEqual(result[3].logs[0].args.oldAdmin, user01, "delete event did not return correct oldAdmin param");
-
-        /* check delete of owner by owner */
-        assert.strictEqual(result[4].logs[0].event, "DeletedAdmin", "delete event did not return correct name");
-        assert.strictEqual(result[4].logs[0].args.from, owner, "delete event did not return correct sender");
-        assert.strictEqual(result[4].logs[0].args.oldAdmin, owner, "delete event did not return correct oldAdmin param");
-
         /* check users are not admin */
         assert.isNotTrue(result[5], "isAdmin did not return correctly");
         assert.isNotTrue(result[6], "isAdmin did not return correctly");
         assert.isNotTrue(result[7], "isAdmin did not return correctly");
-
-        /* check owner is restored as admin */
-        assert.isTrue(result[9], "isAdmin did not return correctly");
       });
     }); //end test block
 

@@ -116,9 +116,6 @@ contract ('SmartPiggies', function(accounts) {
       return piggyInstance.setFeeAddress(feeAddress, {from: owner})
       .then(result => {
         assert.isTrue(result.receipt.status, "setFeeAddress status did not return true");
-        assert.strictEqual(result.logs[0].event, "FeeAddressSet", "setFeeAddress event did not return correct name");
-        assert.strictEqual(result.logs[0].args.from, owner, "setFeeAddress event did not return correct sender");
-        assert.strictEqual(result.logs[0].args.newAddress, feeAddress, "setFeeAddress event did not return correct feeAddress");
         return piggyInstance.feeAddress.call({from: owner})
       })
       .then(result => {
@@ -131,9 +128,6 @@ contract ('SmartPiggies', function(accounts) {
       return piggyInstance.setFeePercent(newFeePercent, {from: owner})
       .then(result => {
         assert.isTrue(result.receipt.status, "setFeePercent status did not return true");
-        assert.strictEqual(result.logs[0].event, "FeeSet", "FeeSet event did not return correct name");
-        assert.strictEqual(result.logs[0].args.from, owner, "FeeSet event did not return correct sender");
-        assert.strictEqual(result.logs[0].args.newFee.toString(), newFeePercent.toString(), "FeeSet event did not return correct value");
         return piggyInstance.feePercent.call({from: owner});
       })
       .then(result => {
@@ -146,9 +140,6 @@ contract ('SmartPiggies', function(accounts) {
       return piggyInstance.setFeeResolution(newFeeResolution, {from: owner})
       .then(result => {
         assert.isTrue(result.receipt.status, "setFeeResolution status did not return true");
-        assert.strictEqual(result.logs[0].event, "ResolutionSet", "ResolutionSet event did not return correct name");
-        assert.strictEqual(result.logs[0].args.from, owner, "ResolutionSet event did not return correct sender");
-        assert.strictEqual(result.logs[0].args.newResolution.toString(), newFeeResolution.toString(), "ResolutionSet event did not return correct value");
         return piggyInstance.feeResolution.call({from: owner});
       })
       .then(result => {

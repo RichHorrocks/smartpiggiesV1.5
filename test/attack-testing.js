@@ -647,7 +647,7 @@ contract ('SmartPiggies', function(accounts) {
         assert.isTrue(result[8], "attack did not return true");
 
         // make sure the auction executed on the attack contract
-        assert.isTrue(result[9].auctionActive, "auction did not return true");
+        assert.isTrue(result[9].flags[0], "auction did not return true");
 
         // check owned piggies accounting
         assert.strictEqual(result[4].length, 1, "owned piggies did not return correctly");
