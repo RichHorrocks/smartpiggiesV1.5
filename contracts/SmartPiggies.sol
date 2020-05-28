@@ -367,9 +367,9 @@ contract SmartPiggies is UsingConstants {
   );
 
   event BidPlaced(
-    address indexed bidder;
-    uint256 indexed tokenId;
-    uint256 indexed bid;
+    address indexed bidder,
+    uint256 indexed tokenId,
+    uint256 indexed bid
   );
 
   event EndAuction(
@@ -387,6 +387,13 @@ contract SmartPiggies is UsingConstants {
   );
 
   event RequestSettlementPrice(
+    address indexed feePayer,
+    uint256 indexed tokenId,
+    uint256 oracleFee,
+    address dataResolver
+  );
+
+  event CheckLimitPrice(
     address indexed feePayer,
     uint256 indexed tokenId,
     uint256 oracleFee,
@@ -915,24 +922,24 @@ contract SmartPiggies is UsingConstants {
       returnAmount = piggies[_tokenId].uintDetails.reqCollateral;
       bidBalances[bidder][_tokenId] = 0;
 
-      ERC20balances[bidder][collateralERC] =
-      ERC20balances[bidder][collateralERC].add(returnAmount);
+      ERC20Balances[bidder][collateralERC] =
+      ERC20Balances[bidder][collateralERC].add(returnAmount);
 
       // return reserve to holder
       address holder = piggies[_tokenId].accounts.holder;
       returnAmount = auctions[_tokenId].details[RESERVE_PRICE];
       bidBalances[holder][_tokenId] = 0;
 
-      ERC20balances[holder][collateralERC] =
-      ERC20balances[holder][collateralERC].add(returnAmount);
+      ERC20Balances[holder][collateralERC] =
+      ERC20Balances[holder][collateralERC].add(returnAmount);
     }
     else {
       // refund the _reservePrice premium
       returnAmount = auctions[_tokenId].details[AUCTION_PREMIUM];
       bidBalances[msg.sender][_tokenId] = 0;
 
-      ERC20balances[msg.sender][collateralERC] =
-      ERC20balances[msg.sender][collateralERC].add(returnAmount);
+      ERC20Balances[msg.sender][collateralERC] =
+      ERC20Balances[msg.sender][collateralERC].add(returnAmount);
     }
 
     // clean up token bid
@@ -990,8 +997,8 @@ contract SmartPiggies is UsingConstants {
       address collateralERC = piggies[_tokenId].accounts.collateralERC;
 
       // previous holder/writer receives (adjusted) auction premium
-      ERC20balances[previousHolder][collateralERC] =
-      ERC20balances[previousHolder][collateralERC].add(adjPremium);
+      ERC20Balances[previousHolder][collateralERC] =
+      ERC20Balances[previousHolder][collateralERC].add(adjPremium);
 
     }
     // auction didn't go through a bidding process
@@ -1091,14 +1098,14 @@ contract SmartPiggies is UsingConstants {
 
     // current holder pays premium (via amount already delegated to this contract in startAuction)
     address collateralERC = piggies[_tokenId].accounts.collateralERC;
-    ERC20balances[bidder][collateralERC] =
-      ERC20balances[bidder][collateralERC].add(adjPremium);
+    ERC20Balances[bidder][collateralERC] =
+      ERC20Balances[bidder][collateralERC].add(adjPremium);
 
     // return any change to current holder
     if(adjPremium < reserve) {
       // return any change during the bidding process
-      ERC20balances[holder][collateralERC] =
-        ERC20balances[holder][collateralERC].add(reserve.sub(adjPremium));
+      ERC20Balances[holder][collateralERC] =
+        ERC20Balances[holder][collateralERC].add(reserve.sub(adjPremium));
     }
 
     emit SatisfyAuction(
@@ -1167,7 +1174,7 @@ contract SmartPiggies is UsingConstants {
     // *** warning untrusted function call ***
     // msg.sender needs to delegate reqCollateral
     (bool success, bytes memory result) = attemptPaymentTransfer(
-      collateralERC
+      collateralERC,
       msg.sender,
       address(this),
       piggies[_tokenId].uintDetails.reqCollateral
@@ -1176,14 +1183,14 @@ contract SmartPiggies is UsingConstants {
     require(success && txCheck == TX_SUCCESS, "token transfer failed");
 
     // current holder pays premium (via amount already delegated to this contract in startAuction)
-    ERC20balances[msg.sender][collateralERC] =
-      ERC20balances[msg.sender][collateralERC].add(adjPremium);
+    ERC20Balances[msg.sender][collateralERC] =
+      ERC20Balances[msg.sender][collateralERC].add(adjPremium);
 
     // current holder receives any change due
     if (change > 0) {
       address holder = piggies[_tokenId].accounts.holder;
-      ERC20balances[holder][collateralERC] =
-        ERC20balances[holder][collateralERC].add(change);
+      ERC20Balances[holder][collateralERC] =
+        ERC20Balances[holder][collateralERC].add(change);
     }
 
     emit SatisfyAuction(
@@ -1268,10 +1275,10 @@ contract SmartPiggies is UsingConstants {
     require(msg.sender != address(0));
     require(_tokenId != 0, "tokenId cannot be zero");
     require(auctions[_tokenId].flags[AUCTION_ACTIVE], "auction must be active");
-    require(!piggies[_tokenId].flags[HAS_BEEN_CLEARED], "piggy cleared");
+    require(!piggies[_tokenId].flags.hasBeenCleared, "piggy cleared");
     require(!auctions[_tokenId].flags[BID_CLEARED], "bid cleared");
 
-    address dataResolver = piggies[_tokenId].addresses.dataResolver;
+    address dataResolver = piggies[_tokenId].accounts.dataResolver;
     uint8 request = uint8 (RequestType.Bid);
     // *** warning untrusted function call ***
     bytes memory payload = abi.encodeWithSignature(
@@ -1525,30 +1532,18 @@ contract SmartPiggies is UsingConstants {
     emit TransferPiggy(_from, _to, _tokenId);
   }
 
-  function _clearBid(uint256 _tokenId)
+  function _checkBidPrice(bool isPut, uint256 limitPrice, uint256 oraclePrice)
     internal
+    pure
   {
-    auctions[_tokenId].details[ORACLE_PRICE] = 0;
-    auctions[_tokenId].details[AUCTION_PREMIUM] = 0;
-    auctions[_tokenId].details[COOLDOWN] = 0;
-    auctions[_tokenId].activeBidder = address(0);
-    auctions[_tokenId].rfpNonce = 0;
-    auctions[_tokenId].flags[BID_LIMIT_SET] = false;
-    auctions[_tokenId].flags[BID_CLEARED] = false;
-  }
-
-  function _clearAuctionDetails(uint256 _tokenId)
-    internal
-  {
-    auctions[_tokenId].details[START_BLOCK] = 0;
-    auctions[_tokenId].details[EXPIRY_BLOCK] = 0;
-    auctions[_tokenId].details[START_PRICE] = 0;
-    auctions[_tokenId].details[RESERVE_PRICE] = 0;
-    auctions[_tokenId].details[TIME_STEP] = 0;
-    auctions[_tokenId].details[PRICE_STEP] = 0;
-    auctions[_tokenId].details[LIMIT_PRICE] = 0;
-    auctions[_tokenId].flags[AUCTION_ACTIVE] = false;
-    _clearBid(_tokenId);
+    // check price limit condition
+    if(isPut) {
+        // if put
+        require(limitPrice < oraclePrice, "price limit violated");
+    } else {
+        // if call
+        require(oraclePrice < limitPrice, "price limit violated");
+    }
   }
 
   // calculate the price for satisfaction of an auction
@@ -1644,6 +1639,32 @@ contract SmartPiggies is UsingConstants {
       ownedPiggiesIndex[lastTokenId] = tokenIndex;
     }
     ownedPiggies[_from].length--;
+  }
+
+  function _clearBid(uint256 _tokenId)
+    private
+  {
+    auctions[_tokenId].details[ORACLE_PRICE] = 0;
+    auctions[_tokenId].details[AUCTION_PREMIUM] = 0;
+    auctions[_tokenId].details[COOLDOWN] = 0;
+    auctions[_tokenId].activeBidder = address(0);
+    auctions[_tokenId].rfpNonce = 0;
+    auctions[_tokenId].flags[BID_LIMIT_SET] = false;
+    auctions[_tokenId].flags[BID_CLEARED] = false;
+  }
+
+  function _clearAuctionDetails(uint256 _tokenId)
+    private
+  {
+    auctions[_tokenId].details[START_BLOCK] = 0;
+    auctions[_tokenId].details[EXPIRY_BLOCK] = 0;
+    auctions[_tokenId].details[START_PRICE] = 0;
+    auctions[_tokenId].details[RESERVE_PRICE] = 0;
+    auctions[_tokenId].details[TIME_STEP] = 0;
+    auctions[_tokenId].details[PRICE_STEP] = 0;
+    auctions[_tokenId].details[LIMIT_PRICE] = 0;
+    auctions[_tokenId].flags[AUCTION_ACTIVE] = false;
+    _clearBid(_tokenId);
   }
 
   function _resetPiggy(uint256 _tokenId)
