@@ -79,14 +79,6 @@ contract Freezable is Administered {
   _;
   }
 
-  function isNotFrozen()
-    public
-    view
-    returns (bool)
-  {
-    return notFrozen;
-  }
-
   function freeze()
     public
     onlyAdmin
@@ -122,14 +114,6 @@ contract Serviced is Freezable {
     feeAddress = _feeAddress;
     feePercent = 50;
     feeResolution = 10**4;
-  }
-
-  function getFeeAddress()
-    public
-    view
-    returns (address)
-  {
-    return feeAddress;
   }
 
   function setFeeAddress(address payable _newAddress)
@@ -1537,13 +1521,7 @@ contract SmartPiggies is UsingConstants {
     pure
   {
     // check price limit condition
-    if(isPut) {
-        // if put
-        require(limitPrice < oraclePrice, "price limit violated");
-    } else {
-        // if call
-        require(oraclePrice < limitPrice, "price limit violated");
-    }
+    require(isPut ? limitPrice < oraclePrice : oraclePrice < limitPrice, "price limit violated");
   }
 
   // calculate the price for satisfaction of an auction
@@ -1656,6 +1634,8 @@ contract SmartPiggies is UsingConstants {
   function _clearAuctionDetails(uint256 _tokenId)
     private
   {
+    delete auctions[_tokenId];
+    /**
     auctions[_tokenId].details[START_BLOCK] = 0;
     auctions[_tokenId].details[EXPIRY_BLOCK] = 0;
     auctions[_tokenId].details[START_PRICE] = 0;
@@ -1664,7 +1644,7 @@ contract SmartPiggies is UsingConstants {
     auctions[_tokenId].details[PRICE_STEP] = 0;
     auctions[_tokenId].details[LIMIT_PRICE] = 0;
     auctions[_tokenId].flags[AUCTION_ACTIVE] = false;
-    _clearBid(_tokenId);
+    _clearBid(_tokenId); **/
   }
 
   function _resetPiggy(uint256 _tokenId)
