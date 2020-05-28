@@ -1634,8 +1634,6 @@ contract SmartPiggies is UsingConstants {
   function _clearAuctionDetails(uint256 _tokenId)
     private
   {
-    delete auctions[_tokenId];
-    /**
     auctions[_tokenId].details[START_BLOCK] = 0;
     auctions[_tokenId].details[EXPIRY_BLOCK] = 0;
     auctions[_tokenId].details[START_PRICE] = 0;
@@ -1644,14 +1642,14 @@ contract SmartPiggies is UsingConstants {
     auctions[_tokenId].details[PRICE_STEP] = 0;
     auctions[_tokenId].details[LIMIT_PRICE] = 0;
     auctions[_tokenId].flags[AUCTION_ACTIVE] = false;
-    _clearBid(_tokenId); **/
+    _clearBid(_tokenId);
   }
 
   function _resetPiggy(uint256 _tokenId)
     private
   {
     delete piggies[_tokenId];
-    /**
+    /*
     piggies[_tokenId].addresses.writer = address(0);
     piggies[_tokenId].addresses.holder = address(0);
     piggies[_tokenId].addresses.arbiter = address(0);
