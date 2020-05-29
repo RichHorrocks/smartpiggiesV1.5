@@ -179,6 +179,7 @@ contract UsingConstants is Serviced {
 contract PiggyCompanion is UsingConstants {
   //maintain storage layout of SmartPiggies contract
   uint256 public cooldown;
+  uint256 public bidCooldown;
   address public helperAddress; // Smart Helper contract address in SmartPiggies slot
   enum RequestType { Bid, Settlement }
   bytes32 constant RTN_FALSE = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);

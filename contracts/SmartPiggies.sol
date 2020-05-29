@@ -157,12 +157,14 @@ contract Serviced is Freezable {
 
 contract UsingCooldown is Serviced {
   uint256 public cooldown;
+  uint256 public bidCooldown;
 
   constructor()
     public
   {
     // 4blks/min * 60 min/hr * 24hrs/day * # days
-    cooldown = 17280; // default 3 days
+    cooldown = 3 days; // 17280; default 3 days
+    bidCooldown = 1 days;
   }
 
   function setCooldown(uint256 _newCooldown)
@@ -171,6 +173,15 @@ contract UsingCooldown is Serviced {
     returns (bool)
   {
     cooldown = _newCooldown;
+    return true;
+  }
+
+  function setBidCooldown(uint256 _newCooldown)
+    public
+    onlyAdmin
+    returns (bool)
+  {
+    bidCooldown = _newCooldown;
     return true;
   }
 }
@@ -223,7 +234,7 @@ contract UsingConstants is UsingACompanion {
   uint8 constant AUCTION_ACTIVE     = 0;
   uint8 constant BID_LIMIT_SET       = 1;
   uint8 constant BID_CLEARED        = 2;
-  uint8 constant SATISFY_IN_PROGRESS = 3; // flags[3] mutex guard to disallow ending an auction if a transaction to satisfy is in progress
+  uint8 constant SATISFY_IN_PROGRESS = 3; // mutex guard to disallow ending an auction if a transaction to satisfy is in progress
 }
 
 
@@ -371,13 +382,6 @@ contract SmartPiggies is UsingConstants {
   );
 
   event RequestSettlementPrice(
-    address indexed feePayer,
-    uint256 indexed tokenId,
-    uint256 oracleFee,
-    address dataResolver
-  );
-
-  event CheckLimitPrice(
     address indexed feePayer,
     uint256 indexed tokenId,
     uint256 oracleFee,
@@ -673,7 +677,9 @@ contract SmartPiggies is UsingConstants {
     uint256 _reservePrice,
     uint256 _auctionLength,
     uint256 _timeStep,
-    uint256 _priceStep
+    uint256 _priceStep,
+    uint256 _limitPrice,
+    bool _bidLimitSet
   )
     external
     whenNotFrozen
@@ -695,6 +701,11 @@ contract SmartPiggies is UsingConstants {
     auctions[_tokenId].details[TIME_STEP] = _timeStep;
     auctions[_tokenId].details[PRICE_STEP] = _priceStep;
     auctions[_tokenId].flags[AUCTION_ACTIVE] = true;
+
+    if (_bidLimitSet) {
+      auctions[_tokenId].details[LIMIT_PRICE] = _limitPrice;
+      auctions[_tokenId].flags[BID_LIMIT_SET] = true;
+    }
 
     if (piggies[_tokenId].flags.isRequest) {
       // *** warning untrusted function call ***
@@ -793,13 +804,11 @@ contract SmartPiggies is UsingConstants {
     // lock bidding
     //auctions[_tokenId].flags[2] = true;
     // set cooldown
-    auctions[_tokenId].details[COOLDOWN] = block.number.add(cooldown);
+    auctions[_tokenId].details[COOLDOWN] = block.number.add(bidCooldown);
 
     // get linear auction premium; reserve price should be a ceiling or floor depending on whether this is an RFP or an option, respectively
-    uint256 auctionPremium = _getAuctionPrice(_tokenId);
-
     // calculate the adjusted premium based on reservePrice
-    uint256 adjPremium = auctionPremium;
+    uint256 adjPremium = _getAuctionPrice(_tokenId);
     if (adjPremium < auctions[_tokenId].details[RESERVE_PRICE]) {
       adjPremium = auctions[_tokenId].details[RESERVE_PRICE];
     }
@@ -843,7 +852,7 @@ contract SmartPiggies is UsingConstants {
     // set bidder
     auctions[_tokenId].activeBidder = msg.sender; // used to check that bidding is locked
     // set cooldown
-    auctions[_tokenId].details[COOLDOWN] = block.number.add(cooldown);
+    auctions[_tokenId].details[COOLDOWN] = block.number.add(bidCooldown);
     // record current RFP nonce
     auctions[_tokenId].rfpNonce = piggies[_tokenId].uintDetails.rfpNonce;
 
@@ -939,7 +948,6 @@ contract SmartPiggies is UsingConstants {
     returns (bool)
   {
     require(!auctions[_tokenId].flags[SATISFY_IN_PROGRESS], "auction is being satisfied"); // mutex MUST be first
-    require(msg.sender != piggies[_tokenId].accounts.holder, "cannot satisfy your auction; use endAuction");
     require(auctions[_tokenId].flags[AUCTION_ACTIVE], "auction must be active to satisfy");
     //use satisfyRFPAuction for RFP auctions
     require(!piggies[_tokenId].flags.isRequest, "cannot satisfy auction; check piggy type");
@@ -987,6 +995,9 @@ contract SmartPiggies is UsingConstants {
     }
     // auction didn't go through a bidding process
     else {
+      // can't satisfy your own auction
+      require(msg.sender != piggies[_tokenId].accounts.holder, "cannot satisfy your auction; use endAuction");
+
       auctionPremium = _getAuctionPrice(_tokenId);
       adjPremium = auctionPremium;
 
@@ -1032,7 +1043,6 @@ contract SmartPiggies is UsingConstants {
     returns (bool)
   {
     require(!auctions[_tokenId].flags[SATISFY_IN_PROGRESS], "auction is being satisfied"); // mutex MUST be first
-    require(msg.sender != piggies[_tokenId].accounts.holder, "cannot satisfy your auction; use endAuction");
     require(auctions[_tokenId].flags[AUCTION_ACTIVE], "auction must be active to satisfy");
     //use satisfyPiggyAuction for piggy auctions
     require(piggies[_tokenId].flags.isRequest, "cannot satisfy auction; check piggy type");
@@ -1251,9 +1261,13 @@ contract SmartPiggies is UsingConstants {
     return true;
   }
 
+  /**
+   *  Note: this function makes an external call
+   *  but does not have a reentrancy guard as calling the bid functions
+   *  trip the guard
+   */
   function checkLimitPrice(uint256 _tokenId, uint256 _oracleFee)
     internal // declared as interanal else not visible to bid functions
-    nonReentrant
     returns (bool)
   {
     require(msg.sender != address(0));
@@ -1272,14 +1286,6 @@ contract SmartPiggies is UsingConstants {
     (bool success, bytes memory result) = address(dataResolver).call(payload);
     bytes32 txCheck = abi.decode(result, (bytes32));
     require(success && txCheck == TX_SUCCESS, "call to resolver failed");
-
-    emit CheckLimitPrice(
-      msg.sender,
-      _tokenId,
-      _oracleFee,
-      dataResolver
-    );
-
   }
 
   function _callback(
@@ -1649,37 +1655,5 @@ contract SmartPiggies is UsingConstants {
     private
   {
     delete piggies[_tokenId];
-    /*
-    piggies[_tokenId].addresses.writer = address(0);
-    piggies[_tokenId].addresses.holder = address(0);
-    piggies[_tokenId].addresses.arbiter = address(0);
-    piggies[_tokenId].addresses.collateralERC = address(0);
-    piggies[_tokenId].addresses.dataResolver = address(0);
-    piggies[_tokenId].addresses.writerProposedNewArbiter = address(0);
-    piggies[_tokenId].addresses.holderProposedNewArbiter = address(0);
-    piggies[_tokenId].uintDetails.collateral = 0;
-    piggies[_tokenId].uintDetails.lotSize = 0;
-    piggies[_tokenId].uintDetails.strikePrice = 0;
-    piggies[_tokenId].uintDetails.expiry = 0;
-    piggies[_tokenId].uintDetails.settlementPrice = 0;
-    piggies[_tokenId].uintDetails.reqCollateral = 0;
-    piggies[_tokenId].uintDetails.collateralDecimals = 0;
-    piggies[_tokenId].uintDetails.arbitrationLock = 0;
-    piggies[_tokenId].uintDetails.writerProposedPrice = 0;
-    piggies[_tokenId].uintDetails.holderProposedPrice = 0;
-    piggies[_tokenId].uintDetails.arbiterProposedPrice = 0;
-    piggies[_tokenId].uintDetails.rfpNonce = 0;
-    piggies[_tokenId].flags.isRequest = false;
-    piggies[_tokenId].flags.isEuro = false;
-    piggies[_tokenId].flags.isPut = false;
-    piggies[_tokenId].flags.hasBeenCleared = false;
-    piggies[_tokenId].flags.writerHasProposedNewArbiter = false;
-    piggies[_tokenId].flags.holderHasProposedNewArbiter = false;
-    piggies[_tokenId].flags.writerHasProposedPrice = false;
-    piggies[_tokenId].flags.holderHasProposedPrice = false;
-    piggies[_tokenId].flags.arbiterHasProposedPrice = false;
-    piggies[_tokenId].flags.arbiterHasConfirmed = false;
-    piggies[_tokenId].flags.arbitrationAgreement = false;
-    **/
   }
 }
